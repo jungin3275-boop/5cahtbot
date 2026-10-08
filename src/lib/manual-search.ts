@@ -1,6 +1,7 @@
 import manual from "@/data/manual-pages.json";
 import hazardPrevention from "@/data/hazard-prevention-pages.json";
 import supervisorTraining from "@/data/supervisor-training-qna.json";
+import safetyHealthRegulation from "@/data/safety-health-regulation.json";
 
 export type Evidence = {
   pdfPage: number;
@@ -164,6 +165,8 @@ const CATEGORY_GUIDES: Record<string, { message: string; keyPoints: string[] }> 
 };
 
 const CATEGORY_TERMS: Record<string, string[]> = {
+  regulation: ["안전보건관리규정", "관리규정", "규정목적", "적용범위", "보칙", "시행일"],
+  organization: ["안전보건관리조직", "안전보건관리책임자", "안전관리자", "보건관리자", "산업보건의", "산업안전보건위원회"],
   inspection: ["점검", "자율점검"],
   signage: ["표지", "게시", "부착", "법령요지"],
   ppe: ["보호구", "안전모", "안전화"],
@@ -212,6 +215,14 @@ const sources = [
     url: supervisorTraining.sourceUrl ?? undefined,
     extraction: supervisorTraining.extraction,
     pages: supervisorTraining.pages,
+  },
+  {
+    title: safetyHealthRegulation.sourceTitle,
+    publisher: safetyHealthRegulation.sourcePublisher,
+    date: safetyHealthRegulation.sourceDate,
+    url: safetyHealthRegulation.sourceUrl ?? undefined,
+    extraction: safetyHealthRegulation.extraction,
+    pages: safetyHealthRegulation.pages,
   },
 ];
 
@@ -306,6 +317,7 @@ export function searchManual(question: string, previousQuestion?: string): Searc
   const category = currentCategory ?? (previousQuestion && question.length <= 35 ? detectCategory(previousQuestion) : undefined);
   const terms = queryTerms(`${question} ${!currentCategory && category ? previousQuestion ?? "" : ""}`);
   const supervisorQuestion = category === "supervisor" ? detectSupervisorQuestion(question) : undefined;
+  const supervisorDutyQuestion = category === "supervisor" && /(직무|업무|역할|임무)/u.test(normalize(question));
   const fallback: SearchResponse = {
     status: "not_found",
     message: "이 질문과 충분히 관련된 매뉴얼 페이지를 찾지 못했습니다. 질문에 업무 분야나 핵심 용어를 더 넣어 주세요. 현재 자료만으로 답을 단정할 수 없습니다.",
@@ -326,10 +338,11 @@ export function searchManual(question: string, previousQuestion?: string): Searc
       const normalizedAlias = normalize(alias);
       return terms.some((term) => normalizedAlias.includes(term) || term.includes(normalizedAlias));
     }).length;
-    const supervisorBonus = page.category === "supervisor" && page.pdfPage === supervisorQuestion ? 50 : 0;
-    const score = matched.length * 2 + titleHits * 3 + aliasHits * 5 + (page.category === category ? 12 : 0) + supervisorBonus;
+    const supervisorBonus = page.sourceTitle === supervisorTraining.sourceTitle && page.pdfPage === supervisorQuestion ? 50 : 0;
+    const supervisorDutyBonus = supervisorDutyQuestion && page.sourceTitle === safetyHealthRegulation.sourceTitle && page.section.includes("제7조") ? 30 : 0;
+    const score = matched.length * 2 + titleHits * 3 + aliasHits * 5 + (page.category === category ? 12 : 0) + supervisorBonus + supervisorDutyBonus;
     return { page, score, matched };
-  }).filter((entry) => category ? entry.page.category === category : entry.score >= 4)
+  }).filter((entry) => entry.score >= 4)
     .sort((a, b) => b.score - a.score || a.page.pdfPage - b.page.pdfPage);
 
   if (!ranked.length) return fallback;
