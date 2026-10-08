@@ -5,6 +5,10 @@ import safetyHealthRegulation from "@/data/safety-health-regulation.json";
 import educationMinistryGuidance from "@/data/education-ministry-guidance.json";
 import supervisorTraining2026 from "@/data/supervisor-training-2026.json";
 import newEmployeeTraining from "@/data/new-employee-training.json";
+import inspectionBestPractices from "@/data/inspection-best-practices.json";
+import workerHealthSupport from "@/data/worker-health-support.json";
+import safetySiren2026 from "@/data/safety-siren-2026.json";
+import regularWorkerTrainingCurrent from "@/data/regular-worker-training-current.json";
 
 export type Evidence = {
   pdfPage: number;
@@ -165,6 +169,33 @@ const CATEGORY_GUIDES: Record<string, { message: string; keyPoints: string[] }> 
       "신규 또는 변경 시 30일 이내 측정하고 이후 6개월마다 1회 이상 실시하는 기준을 안내합니다.",
     ],
   },
+  heat: {
+    message: "폭염 작업은 체감온도를 확인하고 단계에 따라 작업시간과 휴식시간을 조정해야 합니다.",
+    keyPoints: [
+      "체감온도 31℃ 이상이면 온열질환 예방조치를 시작하고 온도를 주기적으로 확인합니다.",
+      "체감온도 33℃ 이상이면 2시간마다 20분 이상의 휴식을 부여합니다.",
+      "체감온도가 높아지면 옥외작업을 단축하거나 중지하고 민감군을 별도로 보호합니다.",
+      "열사병이 의심되면 즉시 119에 신고하고 시원한 장소로 옮겨 체온을 낮춥니다.",
+    ],
+  },
+  weather: {
+    message: "호우·태풍 전후에는 시설물, 전기설비, 배수로를 점검하고 위험 작업을 중지해야 합니다.",
+    keyPoints: [
+      "기상특보를 확인하고 옥외 적치물과 시설물을 고정하며 배수로를 정비합니다.",
+      "호우·태풍 중에는 옥외작업과 침수·붕괴 위험 장소 출입을 중지합니다.",
+      "침수 우려 구역의 전원을 차단하고 젖은 손으로 전기설비를 만지지 않습니다.",
+      "복구 작업 전 구조물과 전기설비의 안전 상태를 확인하고 보호구를 착용합니다.",
+    ],
+  },
+  struck: {
+    message: "물체에 맞거나 운반물에 부딪히는 사고는 적재·운반 방법과 통로 상태를 함께 개선해야 합니다.",
+    keyPoints: [
+      "운반물은 떨어지지 않도록 고정하고 과도하게 높이 쌓지 않습니다.",
+      "무거운 급식 운반카트는 2인 1조로 이동하고 전방 시야를 확보합니다.",
+      "트렌치와 단차는 덮개와 표시로 관리하고 통로에 장애물을 두지 않습니다.",
+      "사고가 발생하면 추가 낙하 위험을 차단하고 부상자를 안전하게 응급조치합니다.",
+    ],
+  },
 };
 
 const CATEGORY_TERMS: Record<string, string[]> = {
@@ -182,6 +213,9 @@ const CATEGORY_TERMS: Record<string, string[]> = {
   musculoskeletal: ["근골격계", "부담작업", "유해요인조사"],
   msds: ["msds", "물질안전보건자료", "화학물질", "세제", "세척제", "소독제"],
   environment: ["작업환경측정", "작업환경", "노출", "측정"],
+  heat: ["온열질환", "폭염", "체감온도", "열사병", "열탈진", "무더위", "휴게시설"],
+  weather: ["호우", "태풍", "폭우", "침수", "강풍", "산사태", "악천후"],
+  struck: ["물체에맞음", "낙하물", "운반카트", "식판운반차", "배식차"],
   slip: ["넘어짐", "미끄러짐", "출입문턱", "소독판", "단차"],
   burn: ["열탕소독", "화상", "뜨거운물", "회전솥", "소쿠리"],
   storage: ["시설창고", "창고정리", "적재물", "정리정돈"],
@@ -251,17 +285,59 @@ const sources = [
     extraction: newEmployeeTraining.extraction,
     pages: newEmployeeTraining.pages,
   },
+  {
+    title: inspectionBestPractices.sourceTitle,
+    publisher: inspectionBestPractices.sourcePublisher,
+    date: inspectionBestPractices.sourceDate,
+    url: inspectionBestPractices.sourceUrl,
+    extraction: inspectionBestPractices.extraction,
+    pages: inspectionBestPractices.pages,
+  },
+  {
+    title: workerHealthSupport.sourceTitle,
+    publisher: workerHealthSupport.sourcePublisher,
+    date: workerHealthSupport.sourceDate,
+    url: workerHealthSupport.sourceUrl,
+    extraction: workerHealthSupport.extraction,
+    pages: workerHealthSupport.pages,
+  },
+  {
+    title: safetySiren2026.sourceTitle,
+    publisher: safetySiren2026.sourcePublisher,
+    date: safetySiren2026.sourceDate,
+    url: safetySiren2026.sourceUrl,
+    extraction: safetySiren2026.extraction,
+    pages: safetySiren2026.pages,
+  },
+  {
+    title: regularWorkerTrainingCurrent.sourceTitle,
+    publisher: regularWorkerTrainingCurrent.sourcePublisher,
+    date: regularWorkerTrainingCurrent.sourceDate,
+    url: regularWorkerTrainingCurrent.sourceUrl,
+    extraction: regularWorkerTrainingCurrent.extraction,
+    pages: regularWorkerTrainingCurrent.pages,
+  },
 ];
 
-const indexedPages = sources.flatMap((source) => source.pages.map((page) => ({
-  ...page,
-  referenceLabel: "referenceLabel" in page ? page.referenceLabel : undefined,
-  sourceTitle: source.title,
-  sourcePublisher: source.publisher,
-  sourceDate: source.date,
-  sourceUrl: source.url,
-  isOcr: source.extraction.includes("OCR"),
-})));
+const indexedPages = sources.flatMap((source) => source.pages.map((page) => {
+  const pageMetadata = page as typeof page & {
+    sourceUrl?: string;
+    sourceKind?: "web" | "pdf";
+    sourceDate?: string;
+  };
+  const sourceUrl = pageMetadata.sourceUrl ?? source.url;
+
+  return {
+    ...page,
+    referenceLabel: "referenceLabel" in page ? page.referenceLabel : undefined,
+    sourceTitle: source.title,
+    sourcePublisher: source.publisher,
+    sourceDate: pageMetadata.sourceDate ?? source.date,
+    sourceUrl,
+    sourceKind: pageMetadata.sourceKind ?? (sourceUrl?.includes("/html/") ? "web" : "pdf"),
+    isOcr: source.extraction.includes("OCR"),
+  };
+}));
 
 const STOP_WORDS = new Set(["학교", "근로자", "어떻게", "무엇", "어떤", "해야", "하나요", "있나요", "관한", "관련", "대해", "경우", "우리", "에서", "위한", "확인"]);
 
@@ -278,7 +354,7 @@ function detectCategory(question: string): string | undefined {
   let best: { category: string; length: number } | undefined;
   for (const [category, terms] of Object.entries(CATEGORY_TERMS)) {
     for (const term of terms) {
-      if (condensed.includes(term.toLowerCase()) && term.length > (best?.length ?? 0)) {
+      if (condensed.includes(term.toLowerCase()) && term.length >= (best?.length ?? 0)) {
         best = { category, length: term.length };
       }
     }
@@ -342,7 +418,7 @@ function excerptFor(text: string, terms: string[], isOcr: boolean): string {
 export function searchManual(question: string, previousQuestion?: string): SearchResponse {
   const currentCategory = detectCategory(question);
   const normalizedQuestion = normalize(question).replaceAll(" ", "");
-  const newEmployeeTrainingQuestion = /(신규채용|채용시|현업업무종사자)/u.test(normalizedQuestion);
+  const newEmployeeTrainingQuestion = /(신규채용|채용시|신규.*현업|현업.*신규)/u.test(normalizedQuestion);
   const category = newEmployeeTrainingQuestion
     ? "education"
     : currentCategory ?? (previousQuestion && question.length <= 35 ? detectCategory(previousQuestion) : undefined);
@@ -358,6 +434,17 @@ export function searchManual(question: string, previousQuestion?: string): Searc
       : /(어디|수강처|사이트|연수원|신청)/u.test(normalizedQuestion)
         ? "provider"
         : "general";
+  const regularTrainingQuestion = !newEmployeeTrainingQuestion
+    && category === "education"
+    && /(정기교육|근로자정기|현업업무종사자정기|매반기|반기|과태료)/u.test(normalizedQuestion);
+  const regularTrainingIntent = /(과태료|미실시|벌금)/u.test(normalizedQuestion)
+    ? "fine"
+    : /(몇시간|교육시간|반기|연간|집체|비대면|방법)/u.test(normalizedQuestion)
+      ? "hours"
+      : /(교육내용|무슨내용|무엇을배우)/u.test(normalizedQuestion)
+        ? "content"
+        : "general";
+  const workerHealthQuestion = /(폐암|근로자건강센터|산업보건의|후드풍속|무료컨설팅)/u.test(normalizedQuestion);
   const currentTrainingQuestion = category === "supervisor" && normalizedQuestion.includes("2026");
   const currentTrainingIntent = /(수료증|보관)/u.test(normalizedQuestion)
     ? "certificate"
@@ -401,7 +488,14 @@ export function searchManual(question: string, previousQuestion?: string): Searc
             : newEmployeeTrainingIntent === "provider" && page.section.includes("수강처") ? 100
               : 20)
       : 0;
-    const score = matched.length * 2 + titleHits * 3 + aliasHits * 5 + (page.category === category ? 12 : 0) + supervisorBonus + supervisorDutyBonus + currentTrainingBonus + contractorActionBonus + newEmployeeTrainingBonus;
+    const regularTrainingBonus = regularTrainingQuestion && page.sourceTitle === regularWorkerTrainingCurrent.sourceTitle
+      ? (regularTrainingIntent === "fine" && page.section.includes("과태료") ? 100
+        : regularTrainingIntent === "hours" && page.section.includes("시간") ? 100
+          : regularTrainingIntent === "content" && page.section.includes("교육내용") ? 100
+            : 20)
+      : 0;
+    const workerHealthBonus = workerHealthQuestion && page.sourceTitle === workerHealthSupport.sourceTitle ? 80 : 0;
+    const score = matched.length * 2 + titleHits * 3 + aliasHits * 5 + (page.category === category ? 12 : 0) + supervisorBonus + supervisorDutyBonus + currentTrainingBonus + contractorActionBonus + newEmployeeTrainingBonus + regularTrainingBonus + workerHealthBonus;
     return { page, score, matched };
   }).filter((entry) => entry.score >= 4)
     .sort((a, b) => b.score - a.score || a.page.pdfPage - b.page.pdfPage);
@@ -425,7 +519,7 @@ export function searchManual(question: string, previousQuestion?: string): Searc
       sourceTitle: page.sourceTitle,
       sourcePublisher: page.sourcePublisher,
       sourceDate: page.sourceDate,
-      url: page.sourceUrl ? `${page.sourceUrl}#page=${page.pdfPage}` : undefined,
+      url: page.sourceUrl ? (page.sourceKind === "web" ? page.sourceUrl : `${page.sourceUrl}#page=${page.pdfPage}`) : undefined,
     })),
     topic: category === "risk" || category === "msds" || category === "contractor" ? category : undefined,
   };
