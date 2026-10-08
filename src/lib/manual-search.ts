@@ -9,6 +9,7 @@ import inspectionBestPractices from "@/data/inspection-best-practices.json";
 import workerHealthSupport from "@/data/worker-health-support.json";
 import safetySiren2026 from "@/data/safety-siren-2026.json";
 import regularWorkerTrainingCurrent from "@/data/regular-worker-training-current.json";
+import safetyHealthCommitteeCurrent from "@/data/safety-health-committee-current.json";
 
 export type Evidence = {
   pdfPage: number;
@@ -317,6 +318,14 @@ const sources = [
     extraction: regularWorkerTrainingCurrent.extraction,
     pages: regularWorkerTrainingCurrent.pages,
   },
+  {
+    title: safetyHealthCommitteeCurrent.sourceTitle,
+    publisher: safetyHealthCommitteeCurrent.sourcePublisher,
+    date: safetyHealthCommitteeCurrent.sourceDate,
+    url: safetyHealthCommitteeCurrent.sourceUrl,
+    extraction: safetyHealthCommitteeCurrent.extraction,
+    pages: safetyHealthCommitteeCurrent.pages,
+  },
 ];
 
 const indexedPages = sources.flatMap((source) => source.pages.map((page) => {
@@ -445,6 +454,14 @@ export function searchManual(question: string, previousQuestion?: string): Searc
         ? "content"
         : "general";
   const workerHealthQuestion = /(폐암|근로자건강센터|산업보건의|후드풍속|무료컨설팅)/u.test(normalizedQuestion);
+  const committeeQuestion = /산업안전보건위원회/u.test(normalizedQuestion);
+  const committeeIntent = /(몇명|구성|근로자위원|사용자위원)/u.test(normalizedQuestion)
+    ? "composition"
+    : /(회의|분기|개최|정족수|과반수|찬성)/u.test(normalizedQuestion)
+      ? "meeting"
+      : /(심의|의결|안건|사항)/u.test(normalizedQuestion)
+        ? "agenda"
+        : "general";
   const currentTrainingQuestion = category === "supervisor" && normalizedQuestion.includes("2026");
   const currentTrainingIntent = /(수료증|보관)/u.test(normalizedQuestion)
     ? "certificate"
@@ -495,7 +512,13 @@ export function searchManual(question: string, previousQuestion?: string): Searc
             : 20)
       : 0;
     const workerHealthBonus = workerHealthQuestion && page.sourceTitle === workerHealthSupport.sourceTitle ? 80 : 0;
-    const score = matched.length * 2 + titleHits * 3 + aliasHits * 5 + (page.category === category ? 12 : 0) + supervisorBonus + supervisorDutyBonus + currentTrainingBonus + contractorActionBonus + newEmployeeTrainingBonus + regularTrainingBonus + workerHealthBonus;
+    const committeeBonus = committeeQuestion && page.sourceTitle === safetyHealthCommitteeCurrent.sourceTitle
+      ? (committeeIntent === "composition" && page.section.includes("목적과 구성") ? 100
+        : committeeIntent === "meeting" && page.section.includes("정족수") ? 100
+          : committeeIntent === "agenda" && page.section.includes("심의·의결") ? 100
+            : 20)
+      : 0;
+    const score = matched.length * 2 + titleHits * 3 + aliasHits * 5 + (page.category === category ? 12 : 0) + supervisorBonus + supervisorDutyBonus + currentTrainingBonus + contractorActionBonus + newEmployeeTrainingBonus + regularTrainingBonus + workerHealthBonus + committeeBonus;
     return { page, score, matched };
   }).filter((entry) => entry.score >= 4)
     .sort((a, b) => b.score - a.score || a.page.pdfPage - b.page.pdfPage);
