@@ -34,8 +34,8 @@ async function createGroundedAnswer(
   const model = process.env.OPENAI_MODEL?.trim() || "gpt-6-astra";
   const evidence = searchResult.evidence.map((item, index) => ({
     id: index + 1,
-    source: item.sourceTitle,
-    page: item.pdfPage,
+    source: [item.sourceTitle, item.sourcePublisher].filter(Boolean).join(" · "),
+    reference: item.referenceLabel ?? `PDF ${item.pdfPage}쪽`,
     section: item.section,
     excerpt: item.excerpt,
   }));

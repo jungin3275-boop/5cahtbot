@@ -1,11 +1,14 @@
 import manual from "@/data/manual-pages.json";
 import hazardPrevention from "@/data/hazard-prevention-pages.json";
+import supervisorTraining from "@/data/supervisor-training-qna.json";
 
 export type Evidence = {
   pdfPage: number;
+  referenceLabel?: string;
   section: string;
   excerpt: string;
   sourceTitle: string;
+  sourcePublisher?: string;
   sourceDate: string;
   url?: string;
 };
@@ -165,7 +168,8 @@ const CATEGORY_TERMS: Record<string, string[]> = {
   signage: ["표지", "게시", "부착", "법령요지"],
   ppe: ["보호구", "안전모", "안전화"],
   contractor: ["도급", "용역", "업체", "계약", "공사", "수급인"],
-  education: ["교육", "채용", "신규", "훈련", "관리감독자"],
+  supervisor: ["관리감독자", "집합교육", "비대면실시간교육", "우편통신교육", "수료증", "교육이수", "연간16시간"],
+  education: ["교육", "채용", "신규", "훈련"],
   accident: ["산업재해", "재해", "사고", "보고", "응급", "부상", "중대재해"],
   health: ["건강진단", "건강검진", "검진", "건강관리"],
   risk: ["위험성평가", "위험성", "위험요인", "유해위험요인"],
@@ -187,23 +191,38 @@ const CATEGORY_TERMS: Record<string, string[]> = {
 const sources = [
   {
     title: manual.sourceTitle,
+    publisher: undefined,
     date: manual.sourceDate,
     url: manual.sourceUrl as string | undefined,
+    extraction: manual.extraction,
     pages: manual.pages,
   },
   {
     title: hazardPrevention.sourceTitle,
+    publisher: undefined,
     date: hazardPrevention.sourceDate,
     url: hazardPrevention.sourceUrl ?? undefined,
+    extraction: hazardPrevention.extraction,
     pages: hazardPrevention.pages,
+  },
+  {
+    title: supervisorTraining.sourceTitle,
+    publisher: supervisorTraining.sourcePublisher,
+    date: supervisorTraining.sourceDate,
+    url: supervisorTraining.sourceUrl ?? undefined,
+    extraction: supervisorTraining.extraction,
+    pages: supervisorTraining.pages,
   },
 ];
 
 const indexedPages = sources.flatMap((source) => source.pages.map((page) => ({
   ...page,
+  referenceLabel: "referenceLabel" in page ? page.referenceLabel : undefined,
   sourceTitle: source.title,
+  sourcePublisher: source.publisher,
   sourceDate: source.date,
   sourceUrl: source.url,
+  isOcr: source.extraction.includes("OCR"),
 })));
 
 const STOP_WORDS = new Set(["학교", "근로자", "어떻게", "무엇", "어떤", "해야", "하나요", "있나요", "관한", "관련", "대해", "경우", "우리", "에서", "위한", "확인"]);
@@ -213,7 +232,7 @@ function normalize(value: string): string {
 }
 
 function queryTerms(question: string): string[] {
-  return normalize(question).split(/\s+/).filter((word) => word.length >= 2 && !STOP_WORDS.has(word)).map((word) => word.replace(/(은|는|이|가|을|를|에|도|로|의|과|와|에서|에는|에게|마다|부터|까지|해야|하나요|인가요|나요)$/u, "")).filter((word) => word.length >= 2);
+  return normalize(question).split(/\s+/).filter((word) => word.length >= 2 && !STOP_WORDS.has(word)).map((word) => word.replace(/(하면|해서|했을|할지|할까|받아야|해야|하나요|인가요|습니까|나요|은|는|이|가|을|를|에|도|로|의|과|와|에서|에는|에게|마다|부터|까지)$/u, "")).filter((word) => word.length >= 2);
 }
 
 function detectCategory(question: string): string | undefined {
@@ -227,6 +246,22 @@ function detectCategory(question: string): string | undefined {
     }
   }
   return best?.category;
+}
+
+function detectSupervisorQuestion(question: string): number | undefined {
+  const value = normalize(question).replaceAll(" ", "");
+  if (/(수료증|이수증|보존)/u.test(value)) return 10;
+  if (/(전출|인사발령|다른학교|학교이동)/u.test(value)) return 9;
+  if (/(현업업무종사자|근로자정기교육|추가교육)/u.test(value)) return 8;
+  if (/(우편통신|우편교육)/u.test(value)) return 6;
+  if (/(학교안전사고교육|일반안전교육)/u.test(value)) return 5;
+  if (/(원격과정|직무연수|재생시간|20시간)/u.test(value)) return 4;
+  if (/(수강기간|미이수|이수하지못)/u.test(value)) return 3;
+  if (/(자체교육|강사자격|직접교육)/u.test(value)) return 11;
+  if (/(집합교육|비대면실시간)/u.test(value)) return 2;
+  if (/(매년|과태료|필수교육)/u.test(value)) return 7;
+  if (/(교육내용|법정교육시간|연간.*시간)/u.test(value)) return 1;
+  return undefined;
 }
 
 function cleanEvidenceLine(rawLine: string): string | undefined {
@@ -249,8 +284,8 @@ function cleanEvidenceLine(rawLine: string): string | undefined {
   return line.replace(/^[0-9]+\s+/, "").replace(/\s+([.,:])/g, "$1");
 }
 
-function excerptFor(text: string, terms: string[]): string {
-  const lines = text.split("\n").map(cleanEvidenceLine).filter((line): line is string => Boolean(line));
+function excerptFor(text: string, terms: string[], isOcr: boolean): string {
+  const lines = text.split("\n").map((line) => isOcr ? cleanEvidenceLine(line) : line.replace(/\s+/g, " ").trim()).filter((line): line is string => Boolean(line));
   if (!lines.length) return "자동 문자 인식 품질이 낮은 페이지입니다. 표시된 PDF 쪽의 원문을 직접 확인해 주세요.";
   let bestIndex = 0;
   let best = -1;
@@ -270,6 +305,7 @@ export function searchManual(question: string, previousQuestion?: string): Searc
   const currentCategory = detectCategory(question);
   const category = currentCategory ?? (previousQuestion && question.length <= 35 ? detectCategory(previousQuestion) : undefined);
   const terms = queryTerms(`${question} ${!currentCategory && category ? previousQuestion ?? "" : ""}`);
+  const supervisorQuestion = category === "supervisor" ? detectSupervisorQuestion(question) : undefined;
   const fallback: SearchResponse = {
     status: "not_found",
     message: "이 질문과 충분히 관련된 매뉴얼 페이지를 찾지 못했습니다. 질문에 업무 분야나 핵심 용어를 더 넣어 주세요. 현재 자료만으로 답을 단정할 수 없습니다.",
@@ -281,11 +317,17 @@ export function searchManual(question: string, previousQuestion?: string): Searc
   if (!terms.length && !category) return fallback;
 
   const ranked = indexedPages.map((page) => {
-    const normalized = normalize(`${page.section} ${page.text}`);
+    const searchTerms = "searchTerms" in page ? page.searchTerms : [];
+    const normalized = normalize(`${page.section} ${page.text} ${searchTerms.join(" ")}`);
     const title = normalize(page.section);
     const matched = terms.filter((term) => normalized.includes(term));
     const titleHits = terms.filter((term) => title.includes(term)).length;
-    const score = matched.length * 2 + titleHits * 3 + (page.category === category ? 12 : 0);
+    const aliasHits = searchTerms.filter((alias) => {
+      const normalizedAlias = normalize(alias);
+      return terms.some((term) => normalizedAlias.includes(term) || term.includes(normalizedAlias));
+    }).length;
+    const supervisorBonus = page.category === "supervisor" && page.pdfPage === supervisorQuestion ? 50 : 0;
+    const score = matched.length * 2 + titleHits * 3 + aliasHits * 5 + (page.category === category ? 12 : 0) + supervisorBonus;
     return { page, score, matched };
   }).filter((entry) => category ? entry.page.category === category : entry.score >= 4)
     .sort((a, b) => b.score - a.score || a.page.pdfPage - b.page.pdfPage);
@@ -297,15 +339,17 @@ export function searchManual(question: string, previousQuestion?: string): Searc
   const guide = category ? CATEGORY_GUIDES[category] : undefined;
   return {
     status: "found",
-    message: guide?.message ?? "등록된 근거자료에서 질문과 관련된 내용을 찾았습니다. 아래 원문 문맥과 PDF 페이지를 함께 확인해 주세요.",
+    message: guide?.message ?? "등록된 근거자료에서 질문과 관련된 내용을 찾았습니다. 아래 근거 항목을 함께 확인해 주세요.",
     keyPoints: guide?.keyPoints ?? [],
     sourceTitle: manual.sourceTitle,
     sourceDate: manual.sourceDate,
     evidence: selected.map(({ page }) => ({
       pdfPage: page.pdfPage,
+      referenceLabel: page.referenceLabel,
       section: page.section,
-      excerpt: excerptFor(page.text, terms),
+      excerpt: excerptFor(page.text, terms, page.isOcr),
       sourceTitle: page.sourceTitle,
+      sourcePublisher: page.sourcePublisher,
       sourceDate: page.sourceDate,
       url: page.sourceUrl ? `${page.sourceUrl}#page=${page.pdfPage}` : undefined,
     })),
