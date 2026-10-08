@@ -4,6 +4,7 @@ import supervisorTraining from "@/data/supervisor-training-qna.json";
 import safetyHealthRegulation from "@/data/safety-health-regulation.json";
 import educationMinistryGuidance from "@/data/education-ministry-guidance.json";
 import supervisorTraining2026 from "@/data/supervisor-training-2026.json";
+import newEmployeeTraining from "@/data/new-employee-training.json";
 
 export type Evidence = {
   pdfPage: number;
@@ -242,6 +243,14 @@ const sources = [
     extraction: supervisorTraining2026.extraction,
     pages: supervisorTraining2026.pages,
   },
+  {
+    title: newEmployeeTraining.sourceTitle,
+    publisher: newEmployeeTraining.sourcePublisher,
+    date: newEmployeeTraining.sourceDate,
+    url: newEmployeeTraining.sourceUrl ?? undefined,
+    extraction: newEmployeeTraining.extraction,
+    pages: newEmployeeTraining.pages,
+  },
 ];
 
 const indexedPages = sources.flatMap((source) => source.pages.map((page) => ({
@@ -332,11 +341,23 @@ function excerptFor(text: string, terms: string[], isOcr: boolean): string {
 
 export function searchManual(question: string, previousQuestion?: string): SearchResponse {
   const currentCategory = detectCategory(question);
-  const category = currentCategory ?? (previousQuestion && question.length <= 35 ? detectCategory(previousQuestion) : undefined);
+  const normalizedQuestion = normalize(question).replaceAll(" ", "");
+  const newEmployeeTrainingQuestion = /(신규채용|채용시|현업업무종사자)/u.test(normalizedQuestion);
+  const category = newEmployeeTrainingQuestion
+    ? "education"
+    : currentCategory ?? (previousQuestion && question.length <= 35 ? detectCategory(previousQuestion) : undefined);
   const terms = queryTerms(`${question} ${!currentCategory && category ? previousQuestion ?? "" : ""}`);
   const supervisorQuestion = category === "supervisor" ? detectSupervisorQuestion(question) : undefined;
   const supervisorDutyQuestion = category === "supervisor" && /(직무|업무|역할|임무)/u.test(normalize(question));
-  const normalizedQuestion = normalize(question).replaceAll(" ", "");
+  const newEmployeeTrainingIntent = /(몇시간|교육시간|계약기간|일용|기간제)/u.test(normalizedQuestion)
+    ? "hours"
+    : /(수료증|이수증|제출|교육훈련비)/u.test(normalizedQuestion)
+      ? "certificate"
+      : /(진도율|시험|수료기준|이수기준)/u.test(normalizedQuestion)
+      ? "completion"
+      : /(어디|수강처|사이트|연수원|신청)/u.test(normalizedQuestion)
+        ? "provider"
+        : "general";
   const currentTrainingQuestion = category === "supervisor" && normalizedQuestion.includes("2026");
   const currentTrainingIntent = /(수료증|보관)/u.test(normalizedQuestion)
     ? "certificate"
@@ -373,7 +394,14 @@ export function searchManual(question: string, previousQuestion?: string): Searc
             : 10)
       : 0;
     const contractorActionBonus = contractorActionQuestion && page.sourceTitle === educationMinistryGuidance.sourceTitle && (page.section.includes("중대재해처벌법 과제 9") || page.section.includes("공통 자율점검 - 도급")) ? 100 : 0;
-    const score = matched.length * 2 + titleHits * 3 + aliasHits * 5 + (page.category === category ? 12 : 0) + supervisorBonus + supervisorDutyBonus + currentTrainingBonus + contractorActionBonus;
+    const newEmployeeTrainingBonus = newEmployeeTrainingQuestion && page.sourceTitle === newEmployeeTraining.sourceTitle
+      ? (newEmployeeTrainingIntent === "hours" && page.section.includes("교육시간") ? 100
+        : newEmployeeTrainingIntent === "certificate" && page.section.includes("수료증 제출") ? 100
+          : newEmployeeTrainingIntent === "completion" && page.section.includes("수강신청·수료") ? 100
+            : newEmployeeTrainingIntent === "provider" && page.section.includes("수강처") ? 100
+              : 20)
+      : 0;
+    const score = matched.length * 2 + titleHits * 3 + aliasHits * 5 + (page.category === category ? 12 : 0) + supervisorBonus + supervisorDutyBonus + currentTrainingBonus + contractorActionBonus + newEmployeeTrainingBonus;
     return { page, score, matched };
   }).filter((entry) => entry.score >= 4)
     .sort((a, b) => b.score - a.score || a.page.pdfPage - b.page.pdfPage);
