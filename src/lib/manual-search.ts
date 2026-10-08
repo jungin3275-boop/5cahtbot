@@ -10,6 +10,7 @@ import workerHealthSupport from "@/data/worker-health-support.json";
 import safetySiren2026 from "@/data/safety-siren-2026.json";
 import regularWorkerTrainingCurrent from "@/data/regular-worker-training-current.json";
 import safetyHealthCommitteeCurrent from "@/data/safety-health-committee-current.json";
+import contractorCouncilGuidance from "@/data/contractor-council-guidance.json";
 
 export type Evidence = {
   pdfPage: number;
@@ -326,6 +327,14 @@ const sources = [
     extraction: safetyHealthCommitteeCurrent.extraction,
     pages: safetyHealthCommitteeCurrent.pages,
   },
+  {
+    title: contractorCouncilGuidance.sourceTitle,
+    publisher: contractorCouncilGuidance.sourcePublisher,
+    date: contractorCouncilGuidance.sourceDate,
+    url: contractorCouncilGuidance.sourceUrl ?? undefined,
+    extraction: contractorCouncilGuidance.extraction,
+    pages: contractorCouncilGuidance.pages,
+  },
 ];
 
 const indexedPages = sources.flatMap((source) => source.pages.map((page) => {
@@ -469,6 +478,16 @@ export function searchManual(question: string, previousQuestion?: string): Searc
       ? "enrollment"
       : "hours";
   const contractorActionQuestion = /(도급|용역|위탁)/u.test(normalizedQuestion) && /(확보조치|안전보건확보|평가기준|선정절차)/u.test(normalizedQuestion);
+  const contractorCouncilQuestion = /(도급|수급인|수급업체)/u.test(normalizedQuestion) && /(협의체|회의|안건|협의|30일|60일|일시적|간헐적)/u.test(normalizedQuestion);
+  const contractorCouncilIntent = /(30일|60일|일시적|간헐적|제외)/u.test(normalizedQuestion)
+    ? "exemption"
+    : /(구성|몇명|대리인|비대면|누가참여)/u.test(normalizedQuestion)
+      ? "composition"
+      : /(안건|협의사항|무엇을협의)/u.test(normalizedQuestion)
+        ? "agenda"
+        : /(회의순서|회의진행|서명|기록)/u.test(normalizedQuestion)
+          ? "meeting"
+          : "general";
   const fallback: SearchResponse = {
     status: "not_found",
     message: "이 질문과 충분히 관련된 매뉴얼 페이지를 찾지 못했습니다. 질문에 업무 분야나 핵심 용어를 더 넣어 주세요. 현재 자료만으로 답을 단정할 수 없습니다.",
@@ -498,6 +517,13 @@ export function searchManual(question: string, previousQuestion?: string): Searc
             : 10)
       : 0;
     const contractorActionBonus = contractorActionQuestion && page.sourceTitle === educationMinistryGuidance.sourceTitle && (page.section.includes("중대재해처벌법 과제 9") || page.section.includes("공통 자율점검 - 도급")) ? 100 : 0;
+    const contractorCouncilBonus = contractorCouncilQuestion && page.sourceTitle === contractorCouncilGuidance.sourceTitle
+      ? (contractorCouncilIntent === "exemption" && page.section.includes("적용 제외") ? 100
+        : contractorCouncilIntent === "composition" && page.section.includes("구성과 운영") ? 100
+          : contractorCouncilIntent === "agenda" && page.section.includes("협의할 사항") ? 100
+            : contractorCouncilIntent === "meeting" && page.section.includes("진행과 기록") ? 100
+              : 20)
+      : 0;
     const newEmployeeTrainingBonus = newEmployeeTrainingQuestion && page.sourceTitle === newEmployeeTraining.sourceTitle
       ? (newEmployeeTrainingIntent === "hours" && page.section.includes("교육시간") ? 100
         : newEmployeeTrainingIntent === "certificate" && page.section.includes("수료증 제출") ? 100
@@ -518,7 +544,7 @@ export function searchManual(question: string, previousQuestion?: string): Searc
           : committeeIntent === "agenda" && page.section.includes("심의·의결") ? 100
             : 20)
       : 0;
-    const score = matched.length * 2 + titleHits * 3 + aliasHits * 5 + (page.category === category ? 12 : 0) + supervisorBonus + supervisorDutyBonus + currentTrainingBonus + contractorActionBonus + newEmployeeTrainingBonus + regularTrainingBonus + workerHealthBonus + committeeBonus;
+    const score = matched.length * 2 + titleHits * 3 + aliasHits * 5 + (page.category === category ? 12 : 0) + supervisorBonus + supervisorDutyBonus + currentTrainingBonus + contractorActionBonus + contractorCouncilBonus + newEmployeeTrainingBonus + regularTrainingBonus + workerHealthBonus + committeeBonus;
     return { page, score, matched };
   }).filter((entry) => entry.score >= 4)
     .sort((a, b) => b.score - a.score || a.page.pdfPage - b.page.pdfPage);
