@@ -1,9 +1,11 @@
-"""Convert OCR from the school hazard-prevention slide deck into a search index."""
+"""Build the curated search index for the school hazard-prevention slide deck."""
 
 import argparse
 import hashlib
 import json
 from pathlib import Path
+
+from curated_source_chunks import HAZARD_CHUNKS
 
 
 SECTIONS = [
@@ -37,18 +39,6 @@ def section_for(pdf_page: int):
     return None
 
 
-def clean_text(raw: str) -> str:
-    lines = []
-    for line in raw.splitlines():
-        line = " ".join(line.split()).strip()
-        if len(line) < 3:
-            continue
-        if sum("가" <= char <= "힣" for char in line) < 2 and "MSDS" not in line.upper():
-            continue
-        lines.append(line)
-    return "\n".join(lines)
-
-
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("ocr_json", type=Path)
@@ -60,16 +50,7 @@ def main():
     if len(raw_pages) != 93:
         raise ValueError("Expected OCR results for all 93 PDF pages")
 
-    pages = []
-    for page in raw_pages:
-        location = section_for(page["pdfPage"])
-        if location is None:
-            continue
-        category, section = location
-        text = clean_text(page["text"])
-        if len(text) < 40:
-            continue
-        pages.append({"pdfPage": page["pdfPage"], "category": category, "section": section, "text": text})
+    pages = HAZARD_CHUNKS
 
     payload = {
         "sourceTitle": "학교현장 위험요인과 재해예방 관리 연수자료",
@@ -77,7 +58,7 @@ def main():
         "sourceUrl": None,
         "sourceSha256": hashlib.sha256(args.source_pdf.read_bytes()).hexdigest(),
         "pdfPageCount": 93,
-        "extraction": "Windows Korean OCR; verify all excerpts against the original PDF",
+        "extraction": "Original-page review; manually corrected semantic chunks",
         "pages": pages,
     }
     args.output_json.parent.mkdir(parents=True, exist_ok=True)
