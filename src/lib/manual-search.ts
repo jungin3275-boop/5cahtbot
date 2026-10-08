@@ -11,6 +11,10 @@ import safetySiren2026 from "@/data/safety-siren-2026.json";
 import regularWorkerTrainingCurrent from "@/data/regular-worker-training-current.json";
 import safetyHealthCommitteeCurrent from "@/data/safety-health-committee-current.json";
 import contractorCouncilGuidance from "@/data/contractor-council-guidance.json";
+import seriousAccidentResponseManual from "@/data/serious-accident-response-manual.json";
+import facilityHazardousWorkRules from "@/data/facility-hazardous-work-rules.json";
+import seriousAccidentPreventionGuide from "@/data/serious-accident-prevention-guide.json";
+import highRiskFactorResponseGuidePart1 from "@/data/high-risk-factor-response-guide-part1.json";
 
 export type Evidence = {
   pdfPage: number;
@@ -226,6 +230,19 @@ const CATEGORY_TERMS: Record<string, string[]> = {
   machinery: ["송풍기", "벨트", "캔버스", "윤활"],
   electrical: ["감전", "차단기", "충전부", "콘센트", "접지", "누전"],
   fall: ["추락", "떨어짐", "옥상", "사다리", "안전난간", "현수막", "안전계단"],
+  workstop: ["작업중지권", "작업중지", "작업재개", "급박한위험"],
+  hotwork: ["화기작업", "용접", "불티", "화재감시자"],
+  confined: ["밀폐공간", "산소농도", "송기마스크", "공기호흡기", "원콜"],
+  aerial: ["고소작업대", "차량탑재형고소작업대", "과상승방지장치"],
+  elevator: ["리프트", "엘리베이터", "승강로", "인터록"],
+  logging: ["벌목", "벌도", "전지작업", "수목작업"],
+  chemical: ["위험물질", "인화성물질", "유해물질", "화학물질누출", "잔류물질"],
+  maintenance: ["비정형작업", "정비작업", "보수작업", "잠금장치", "loto"],
+  loading: ["상하차", "적재화물", "화물고정", "팰릿"],
+  construction: ["건설기계", "굴착기", "버킷"],
+  forklift: ["지게차", "포크", "후진경보기"],
+  crane: ["크레인", "줄걸이", "와이어로프", "슬링벨트"],
+  parking: ["기계식주차", "주차설비"],
   serious: ["중대재해처벌", "의무이행", "관계법령"],
   forms: ["서식", "양식"],
 };
@@ -334,6 +351,38 @@ const sources = [
     url: contractorCouncilGuidance.sourceUrl ?? undefined,
     extraction: contractorCouncilGuidance.extraction,
     pages: contractorCouncilGuidance.pages,
+  },
+  {
+    title: seriousAccidentResponseManual.sourceTitle,
+    publisher: seriousAccidentResponseManual.sourcePublisher,
+    date: seriousAccidentResponseManual.sourceDate,
+    url: seriousAccidentResponseManual.sourceUrl ?? undefined,
+    extraction: seriousAccidentResponseManual.extraction,
+    pages: seriousAccidentResponseManual.pages,
+  },
+  {
+    title: facilityHazardousWorkRules.sourceTitle,
+    publisher: facilityHazardousWorkRules.sourcePublisher,
+    date: facilityHazardousWorkRules.sourceDate,
+    url: facilityHazardousWorkRules.sourceUrl ?? undefined,
+    extraction: facilityHazardousWorkRules.extraction,
+    pages: facilityHazardousWorkRules.pages,
+  },
+  {
+    title: seriousAccidentPreventionGuide.sourceTitle,
+    publisher: seriousAccidentPreventionGuide.sourcePublisher,
+    date: seriousAccidentPreventionGuide.sourceDate,
+    url: seriousAccidentPreventionGuide.sourceUrl ?? undefined,
+    extraction: seriousAccidentPreventionGuide.extraction,
+    pages: seriousAccidentPreventionGuide.pages,
+  },
+  {
+    title: highRiskFactorResponseGuidePart1.sourceTitle,
+    publisher: highRiskFactorResponseGuidePart1.sourcePublisher,
+    date: highRiskFactorResponseGuidePart1.sourceDate,
+    url: highRiskFactorResponseGuidePart1.sourceUrl ?? undefined,
+    extraction: highRiskFactorResponseGuidePart1.extraction,
+    pages: highRiskFactorResponseGuidePart1.pages,
   },
 ];
 
