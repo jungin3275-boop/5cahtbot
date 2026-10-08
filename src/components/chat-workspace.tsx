@@ -146,9 +146,9 @@ export function ChatWorkspace() {
           </div>
           <div className="mt-auto rounded-2xl border border-[#e1eae9] bg-[#f7faf9] p-4">
             <div className="flex items-center gap-2 text-xs font-bold text-[#27675f]"><ShieldCheck size={16} /> 근거 중심 안내</div>
-            <p className="mt-2 text-xs leading-5 text-[#718588]">등록된 근거자료 4종을 검색한 뒤 GPT가 근거 번호와 함께 답변합니다.</p>
+            <p className="mt-2 text-xs leading-5 text-[#718588]">등록된 근거자료 6종을 검색한 뒤 GPT가 근거 번호와 함께 답변합니다.</p>
           </div>
-          <div className="px-2 pt-5 text-[11px] text-[#9aabae]">학교 산업안전보건 GPT · v0.5</div>
+          <div className="px-2 pt-5 text-[11px] text-[#9aabae]">학교 산업안전보건 GPT · v0.6</div>
         </aside>
 
         <div className="flex min-h-0 min-w-0 flex-1 flex-col">
@@ -159,7 +159,7 @@ export function ChatWorkspace() {
               <div className="hidden items-center gap-2 text-sm text-[#72878b] lg:flex"><span>업무 지원</span><ChevronRight size={15} /><span className="font-semibold text-[#21454c]">AI 도우미</span></div>
             </div>
             <div className="flex items-center gap-3">
-              <span className="hidden rounded-full border border-[#d5e8e4] bg-[#f1faf7] px-3 py-1.5 text-xs font-semibold text-[#1e806f] sm:inline-flex"><span className="mr-2 mt-1 h-1.5 w-1.5 rounded-full bg-[#20a488]" />v0.5 GPT + 근거자료 4종</span>
+              <span className="hidden rounded-full border border-[#d5e8e4] bg-[#f1faf7] px-3 py-1.5 text-xs font-semibold text-[#1e806f] sm:inline-flex"><span className="mr-2 mt-1 h-1.5 w-1.5 rounded-full bg-[#20a488]" />v0.6 GPT + 근거자료 6종</span>
               <button onClick={clearConversation} title="대화 초기화" aria-label="대화 초기화" className="rounded-full border border-[#e2e9e9] bg-white p-2.5 text-[#587278] transition hover:bg-[#f5f9f9]"><RotateCcw size={16} /></button>
             </div>
           </header>
@@ -220,7 +220,7 @@ function Welcome({ onChoose }: { onChoose: (question: string) => void }) {
     <div className="max-w-[680px] pt-3 sm:pt-8">
       <div className="inline-flex items-center gap-2 rounded-full border border-[#d8ece7] bg-[#ecf8f5] px-3 py-1.5 text-[11px] font-bold text-[#1e8c78]"><Sparkles size={13} /> 학교 안전보건 업무의 출발점</div>
       <h1 className="mt-5 text-[30px] font-bold leading-[1.33] tracking-[-0.045em] text-[#18383e] sm:text-[39px]">안전보건 업무,<br /><span className="text-[#168d79]">궁금한 점을 질문해 주세요.</span></h1>
-      <p className="mt-4 max-w-[620px] text-[14px] leading-7 text-[#657b80] sm:text-[15px]">산업안전보건업무 매뉴얼, 학교현장 위험요인·재해예방 연수자료, 관리감독자 교육 질의응답, 서울특별시교육청 안전보건관리규정을 검색한 뒤 GPT가 답변하고 사용한 근거 항목을 함께 보여드립니다.</p>
+      <p className="mt-4 max-w-[620px] text-[14px] leading-7 text-[#657b80] sm:text-[15px]">학교 산업안전보건 매뉴얼과 규정, 교육부 산업재해 예방 안내, 관리감독자 교육자료 등 근거자료 6종을 검색한 뒤 GPT가 답변하고 사용한 근거 항목을 함께 보여드립니다.</p>
     </div>
     <div className="mt-10 sm:mt-12">
       <div className="mb-4 flex items-center justify-between"><h2 className="text-[15px] font-bold text-[#28484e]">빠른 질문으로 시작하기</h2><span className="text-[11px] font-medium text-[#92a3a6]">질문을 선택하면 입력창에 채워집니다</span></div>

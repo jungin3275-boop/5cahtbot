@@ -2,6 +2,8 @@ import manual from "@/data/manual-pages.json";
 import hazardPrevention from "@/data/hazard-prevention-pages.json";
 import supervisorTraining from "@/data/supervisor-training-qna.json";
 import safetyHealthRegulation from "@/data/safety-health-regulation.json";
+import educationMinistryGuidance from "@/data/education-ministry-guidance.json";
+import supervisorTraining2026 from "@/data/supervisor-training-2026.json";
 
 export type Evidence = {
   pdfPage: number;
@@ -224,6 +226,22 @@ const sources = [
     extraction: safetyHealthRegulation.extraction,
     pages: safetyHealthRegulation.pages,
   },
+  {
+    title: educationMinistryGuidance.sourceTitle,
+    publisher: educationMinistryGuidance.sourcePublisher,
+    date: educationMinistryGuidance.sourceDate,
+    url: educationMinistryGuidance.sourceUrl ?? undefined,
+    extraction: educationMinistryGuidance.extraction,
+    pages: educationMinistryGuidance.pages,
+  },
+  {
+    title: supervisorTraining2026.sourceTitle,
+    publisher: supervisorTraining2026.sourcePublisher,
+    date: supervisorTraining2026.sourceDate,
+    url: supervisorTraining2026.sourceUrl ?? undefined,
+    extraction: supervisorTraining2026.extraction,
+    pages: supervisorTraining2026.pages,
+  },
 ];
 
 const indexedPages = sources.flatMap((source) => source.pages.map((page) => ({
@@ -318,6 +336,14 @@ export function searchManual(question: string, previousQuestion?: string): Searc
   const terms = queryTerms(`${question} ${!currentCategory && category ? previousQuestion ?? "" : ""}`);
   const supervisorQuestion = category === "supervisor" ? detectSupervisorQuestion(question) : undefined;
   const supervisorDutyQuestion = category === "supervisor" && /(직무|업무|역할|임무)/u.test(normalize(question));
+  const normalizedQuestion = normalize(question).replaceAll(" ", "");
+  const currentTrainingQuestion = category === "supervisor" && normalizedQuestion.includes("2026");
+  const currentTrainingIntent = /(수료증|보관)/u.test(normalizedQuestion)
+    ? "certificate"
+    : /(수강|신청|기간|대상|신규과정)/u.test(normalizedQuestion)
+      ? "enrollment"
+      : "hours";
+  const contractorActionQuestion = /(도급|용역|위탁)/u.test(normalizedQuestion) && /(확보조치|안전보건확보|평가기준|선정절차)/u.test(normalizedQuestion);
   const fallback: SearchResponse = {
     status: "not_found",
     message: "이 질문과 충분히 관련된 매뉴얼 페이지를 찾지 못했습니다. 질문에 업무 분야나 핵심 용어를 더 넣어 주세요. 현재 자료만으로 답을 단정할 수 없습니다.",
@@ -338,9 +364,16 @@ export function searchManual(question: string, previousQuestion?: string): Searc
       const normalizedAlias = normalize(alias);
       return terms.some((term) => normalizedAlias.includes(term) || term.includes(normalizedAlias));
     }).length;
-    const supervisorBonus = page.sourceTitle === supervisorTraining.sourceTitle && page.pdfPage === supervisorQuestion ? 50 : 0;
+    const supervisorBonus = !currentTrainingQuestion && page.sourceTitle === supervisorTraining.sourceTitle && page.pdfPage === supervisorQuestion ? 50 : 0;
     const supervisorDutyBonus = supervisorDutyQuestion && page.sourceTitle === safetyHealthRegulation.sourceTitle && page.section.includes("제7조") ? 30 : 0;
-    const score = matched.length * 2 + titleHits * 3 + aliasHits * 5 + (page.category === category ? 12 : 0) + supervisorBonus + supervisorDutyBonus;
+    const currentTrainingBonus = currentTrainingQuestion && page.sourceTitle === supervisorTraining2026.sourceTitle
+      ? (currentTrainingIntent === "certificate" && page.section.includes("수료증 보관") ? 100
+        : currentTrainingIntent === "enrollment" && page.section.includes("수강 대상") ? 100
+          : currentTrainingIntent === "hours" && page.section.includes("시간 구성") ? 100
+            : 10)
+      : 0;
+    const contractorActionBonus = contractorActionQuestion && page.sourceTitle === educationMinistryGuidance.sourceTitle && (page.section.includes("중대재해처벌법 과제 9") || page.section.includes("공통 자율점검 - 도급")) ? 100 : 0;
+    const score = matched.length * 2 + titleHits * 3 + aliasHits * 5 + (page.category === category ? 12 : 0) + supervisorBonus + supervisorDutyBonus + currentTrainingBonus + contractorActionBonus;
     return { page, score, matched };
   }).filter((entry) => entry.score >= 4)
     .sort((a, b) => b.score - a.score || a.page.pdfPage - b.page.pdfPage);
