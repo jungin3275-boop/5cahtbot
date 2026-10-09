@@ -37,6 +37,7 @@ export type SearchResponse = {
   sourceTitle: string;
   sourceDate: string;
   evidence: Evidence[];
+  relatedEvidence?: Evidence[];
   topic?: "risk" | "msds" | "contractor";
   answerMode?: "gpt" | "search";
   model?: string;
@@ -637,24 +638,30 @@ export function searchManual(question: string, previousQuestion?: string): Searc
   if (!ranked.length) return fallback;
   const best = ranked[0];
   if (!category && best.matched.length < 2 && best.score < 6) return fallback;
-  const selected = ranked.slice(0, accidentResponseQuestion ? 5 : 3);
+  const selected = ranked.slice(0, 3);
+  const relatedThreshold = Math.max(8, Math.min(best.score - 4, Math.ceil(best.score * 0.55)));
+  const related = ranked.slice(3)
+    .filter((entry) => entry.score >= relatedThreshold && (!category || entry.page.category === category))
+    .slice(0, 9);
   const guide = category ? CATEGORY_GUIDES[category] : undefined;
+  const toEvidence = ({ page }: (typeof ranked)[number]): Evidence => ({
+    pdfPage: page.pdfPage,
+    referenceLabel: page.referenceLabel,
+    section: page.section,
+    excerpt: excerptFor(page.text, page.isOcr),
+    sourceTitle: page.sourceTitle,
+    sourcePublisher: page.sourcePublisher,
+    sourceDate: page.sourceDate,
+    url: page.sourceUrl ? (page.sourceKind === "web" ? page.sourceUrl : `${page.sourceUrl}#page=${page.pdfPage}`) : undefined,
+  });
   return {
     status: "found",
     message: guide?.message ?? "등록된 근거자료에서 질문과 관련된 내용을 찾았습니다. 아래 근거 항목을 함께 확인해 주세요.",
     keyPoints: guide?.keyPoints ?? [],
     sourceTitle: manual.sourceTitle,
     sourceDate: manual.sourceDate,
-    evidence: selected.map(({ page }) => ({
-      pdfPage: page.pdfPage,
-      referenceLabel: page.referenceLabel,
-      section: page.section,
-      excerpt: excerptFor(page.text, page.isOcr),
-      sourceTitle: page.sourceTitle,
-      sourcePublisher: page.sourcePublisher,
-      sourceDate: page.sourceDate,
-      url: page.sourceUrl ? (page.sourceKind === "web" ? page.sourceUrl : `${page.sourceUrl}#page=${page.pdfPage}`) : undefined,
-    })),
+    evidence: selected.map(toEvidence),
+    relatedEvidence: related.map(toEvidence),
     topic: category === "risk" || category === "msds" || category === "contractor" ? category : undefined,
   };
 }

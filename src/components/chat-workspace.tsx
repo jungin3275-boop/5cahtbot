@@ -252,6 +252,13 @@ function UserBubble({ text }: { text: string }) {
 
 function AnswerBubble({ message }: { message: AnswerMessage }) {
   const result = message.result;
+  const relatedEvidence = result.relatedEvidence ?? [];
+  const [visibleRelatedCount, setVisibleRelatedCount] = useState(0);
+  const visibleEvidence = [
+    ...result.evidence,
+    ...relatedEvidence.slice(0, visibleRelatedCount),
+  ];
+  const hasMoreEvidence = visibleRelatedCount < relatedEvidence.length;
   const isGptAnswer = result.answerMode === "gpt";
   const targetUrl = result.topic ? getIntegrationUrl(result.topic) : undefined;
   return <div className="flex items-start gap-3 sm:gap-4">
@@ -272,7 +279,7 @@ function AnswerBubble({ message }: { message: AnswerMessage }) {
         {result.evidence.length > 0 && <div className="mt-5 border-t border-[#ecf0f0] pt-5">
           <div className="mb-4 flex items-center gap-2 text-[14px] font-bold text-[#3d6267]"><BookOpenText size={18} className="text-[#218d7a]" /> 근거자료 내용</div>
           <div className="space-y-3">
-            {result.evidence.map((item) => <div key={`${item.sourceTitle}-${item.pdfPage}-${item.section}`} className="rounded-xl border border-[#d8e6e5] bg-[#f8fbfa] p-4">
+            {visibleEvidence.map((item) => <div key={`${item.sourceTitle}-${item.pdfPage}-${item.section}`} className="rounded-xl border border-[#d8e6e5] bg-[#f8fbfa] p-4">
               <div className="flex items-start gap-3">
                 <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#e9f3f0] text-[#4b9b8a]"><FileQuestion size={17} /></div>
                 <div className="min-w-0 flex-1">
@@ -284,6 +291,13 @@ function AnswerBubble({ message }: { message: AnswerMessage }) {
               </div>
             </div>)}
           </div>
+          {relatedEvidence.length > 0 && <div className="mt-4 rounded-xl border border-[#d8e6e5] bg-[#f4f9f8] px-4 py-3">
+            <p className="text-[13px] leading-6 text-[#5d7579]">{visibleRelatedCount === 0 ? "관련 근거자료가 더 있습니다. 추가로 확인하시겠어요?" : hasMoreEvidence ? "관련성이 높은 자료부터 추가로 표시했습니다." : "관련 근거자료를 모두 표시했습니다."}</p>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {hasMoreEvidence && <button type="button" onClick={() => setVisibleRelatedCount((count) => Math.min(count + 3, relatedEvidence.length))} className="inline-flex items-center gap-1.5 rounded-lg border border-[#b9dcd5] bg-white px-3 py-2 text-[12px] font-bold text-[#1e806f] transition hover:bg-[#e9f6f2]">관련 자료 더 보기 <ArrowDown size={14} /></button>}
+              {visibleRelatedCount > 0 && <button type="button" onClick={() => setVisibleRelatedCount(0)} className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-[12px] font-bold text-[#71878b] transition hover:bg-white">추가 자료 접기 <ArrowUp size={14} /></button>}
+            </div>
+          </div>}
         </div>}
         {targetUrl && result.topic && <a href={targetUrl} target="_blank" rel="noopener noreferrer" className="mt-5 inline-flex items-center gap-2 rounded-lg border border-[#b9dcd5] bg-[#f0f9f6] px-3.5 py-2 text-xs font-bold text-[#1e866f] transition hover:bg-[#e0f3ed]">{integrationLabels[result.topic]} 열기 <ExternalLink size={13} /></a>}
       </div>
