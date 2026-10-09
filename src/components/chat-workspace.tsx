@@ -146,9 +146,9 @@ export function ChatWorkspace() {
           </div>
           <div className="mt-auto rounded-2xl border border-[#e1eae9] bg-[#f7faf9] p-4">
             <div className="flex items-center gap-2 text-xs font-bold text-[#27675f]"><ShieldCheck size={16} /> 근거 중심 안내</div>
-            <p className="mt-2 text-xs leading-5 text-[#718588]">등록된 근거자료 17종을 검색한 뒤 GPT가 근거 번호와 함께 답변합니다.</p>
+            <p className="mt-2 text-xs leading-5 text-[#718588]">등록된 근거자료를 검색한 뒤 AI가 근거 번호와 함께 답변합니다.</p>
           </div>
-          <div className="px-2 pt-5 text-[11px] text-[#9aabae]">학교 산업안전보건 GPT · v1.1</div>
+          <div className="px-2 pt-5 text-[11px] text-[#9aabae]">학교 산업안전보건 AI · v1.2</div>
         </aside>
 
         <div className="flex min-h-0 min-w-0 flex-1 flex-col">
@@ -159,7 +159,7 @@ export function ChatWorkspace() {
               <div className="hidden items-center gap-2 text-sm text-[#72878b] lg:flex"><span>업무 지원</span><ChevronRight size={15} /><span className="font-semibold text-[#21454c]">AI 도우미</span></div>
             </div>
             <div className="flex items-center gap-3">
-              <span className="hidden rounded-full border border-[#d5e8e4] bg-[#f1faf7] px-3 py-1.5 text-xs font-semibold text-[#1e806f] sm:inline-flex"><span className="mr-2 mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-[#20a488]" />v1.1 GPT + 근거자료 17종</span>
+              <span className="hidden rounded-full border border-[#d5e8e4] bg-[#f1faf7] px-3 py-1.5 text-xs font-semibold text-[#1e806f] sm:inline-flex"><span className="mr-2 mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-[#20a488]" />v1.2 AI + 근거자료</span>
               <button onClick={clearConversation} title="대화 초기화" aria-label="대화 초기화" className="rounded-full border border-[#e2e9e9] bg-white p-2.5 text-[#587278] transition hover:bg-[#f5f9f9]"><RotateCcw size={16} /></button>
             </div>
           </header>
@@ -212,15 +212,15 @@ export function ChatWorkspace() {
 }
 
 function Brand({ compact = false }: { compact?: boolean }) {
-  return <div className="flex items-center gap-3"><span className={`${compact ? "h-9 w-9 rounded-xl" : "h-10 w-10 rounded-[13px]"} flex items-center justify-center bg-[#178b78] text-white shadow-[0_5px_12px_rgba(24,139,120,0.16)]`}><ShieldCheck size={compact ? 21 : 23} strokeWidth={1.9} /></span><div><div className={`${compact ? "text-[13px]" : "text-[14px]"} font-extrabold leading-tight tracking-tight text-[#183c43]`}>학교 산업안전보건</div><div className="mt-0.5 text-[11px] font-semibold tracking-[0.05em] text-[#4e8580]">근거 기반 GPT</div></div></div>;
+  return <div className="flex items-center gap-3"><span className={`${compact ? "h-9 w-9 rounded-xl" : "h-10 w-10 rounded-[13px]"} flex items-center justify-center bg-[#178b78] text-white shadow-[0_5px_12px_rgba(24,139,120,0.16)]`}><ShieldCheck size={compact ? 21 : 23} strokeWidth={1.9} /></span><div><div className={`${compact ? "text-[13px]" : "text-[14px]"} font-extrabold leading-tight tracking-tight text-[#183c43]`}>학교 산업안전보건</div><div className="mt-0.5 text-[11px] font-semibold tracking-[0.05em] text-[#4e8580]">근거 기반 AI</div></div></div>;
 }
 
 function Welcome({ onChoose }: { onChoose: (question: string) => void }) {
   return <div className="flex flex-1 flex-col">
     <div className="max-w-[680px] pt-3 sm:pt-8">
-      <div className="inline-flex items-center gap-2 rounded-full border border-[#d8ece7] bg-[#ecf8f5] px-3 py-1.5 text-[11px] font-bold text-[#1e8c78]"><Sparkles size={13} /> 학교 안전보건 업무의 출발점</div>
-      <h1 className="mt-5 text-[30px] font-bold leading-[1.33] tracking-[-0.045em] text-[#18383e] sm:text-[39px]">안전보건 업무,<br /><span className="text-[#168d79]">궁금한 점을 질문해 주세요.</span></h1>
-      <p className="mt-4 max-w-[620px] text-[14px] leading-7 text-[#657b80] sm:text-[15px]">학교 산업안전보건 매뉴얼과 규정, 중대산업재해 대응, 시설관리 위험작업, 고위험요인 대응, 산업안전보건위원회, 도급 협의체, 현장 개선사례, 건강관리 지원, 안전싸이렌, 교육자료 등 근거자료 17종을 검색한 뒤 GPT가 답변하고 사용한 근거 항목을 함께 보여드립니다.</p>
+      <div className="inline-flex items-center gap-2 rounded-full border border-[#d8ece7] bg-[#ecf8f5] px-3 py-1.5 text-[11px] font-bold text-[#1e8c78]"><Sparkles size={13} /> 학교 산업안전보건 업무의 출발점</div>
+      <h1 className="mt-5 text-[30px] font-bold leading-[1.33] tracking-[-0.045em] text-[#18383e] sm:text-[39px]">산업안전보건 업무,<br /><span className="text-[#168d79]">궁금한 점을 질문해 주세요.</span></h1>
+      <p className="mt-4 max-w-[620px] text-[14px] leading-7 text-[#657b80] sm:text-[15px]">학교 산업안전보건 매뉴얼과 규정, 중대산업재해 대응, 시설관리 위험작업, 고위험요인 대응, 산업안전보건위원회, 도급 협의체, 현장 개선사례, 건강관리 지원, 안전싸이렌, 교육자료 등 등록된 근거자료를 검색한 뒤 AI가 답변하고 사용한 근거 항목을 함께 보여드립니다.</p>
     </div>
     <div className="mt-10 sm:mt-12">
       <div className="mb-4 flex items-center justify-between"><h2 className="text-[15px] font-bold text-[#28484e]">빠른 질문으로 시작하기</h2><span className="text-[11px] font-medium text-[#92a3a6]">질문을 선택하면 입력창에 채워집니다</span></div>
@@ -252,8 +252,8 @@ function AnswerBubble({ message }: { message: AnswerMessage }) {
     <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#e0f3ee] text-[#168f78]"><ShieldCheck size={19} /></div>
     <div className="min-w-0 flex-1">
       <div className="mb-2 flex flex-wrap items-center gap-2">
-        <span className="text-[15px] font-bold text-[#1e4046]">{isGptAnswer ? "GPT 근거 답변" : "근거 검색 안내"}</span>
-        <span className="rounded-full bg-[#eaf3ff] px-2.5 py-1 text-[11px] font-bold text-[#245899]">{isGptAnswer ? "OpenAI GPT" : "검색 모드"}</span>
+        <span className="text-[15px] font-bold text-[#1e4046]">{isGptAnswer ? "AI 근거 답변" : "근거 검색 안내"}</span>
+        <span className="rounded-full bg-[#eaf3ff] px-2.5 py-1 text-[11px] font-bold text-[#245899]">{isGptAnswer ? "AI 답변" : "검색 모드"}</span>
       </div>
       <div className="rounded-2xl rounded-tl-[5px] border border-[#e1e9e9] bg-white p-5 shadow-[0_3px_12px_rgba(29,70,71,0.035)] sm:p-6">
         <p className="whitespace-pre-wrap text-[16px] leading-8 text-[#304b51]">{result.message}</p>
@@ -281,11 +281,11 @@ function AnswerBubble({ message }: { message: AnswerMessage }) {
         </div>}
         {targetUrl && result.topic && <a href={targetUrl} target="_blank" rel="noopener noreferrer" className="mt-5 inline-flex items-center gap-2 rounded-lg border border-[#b9dcd5] bg-[#f0f9f6] px-3.5 py-2 text-xs font-bold text-[#1e866f] transition hover:bg-[#e0f3ed]">{integrationLabels[result.topic]} 열기 <ExternalLink size={13} /></a>}
       </div>
-      <p className="mt-3 text-[12px] leading-6 text-[#7f9498]">{isGptAnswer ? "GPT가 표시된 근거자료를 바탕으로 작성했습니다." : "GPT API 연결 전 검색 답변입니다."} 내용·숫자·기한은 원문과 현행 기준을 확인해 주세요.</p>
+      <p className="mt-3 text-[12px] leading-6 text-[#7f9498]">{isGptAnswer ? "AI가 표시된 근거자료를 바탕으로 작성했습니다." : "AI 연결 전 검색 답변입니다."} 내용·숫자·기한은 원문과 현행 기준을 확인해 주세요.</p>
     </div>
   </div>;
 }
 
 function LoadingBubble() {
-  return <div role="status" aria-live="polite" className="flex items-start gap-3 sm:gap-4"><div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#e0f3ee] text-[#168f78]"><ShieldCheck size={19} /></div><div className="rounded-2xl border border-[#e1e9e9] bg-white px-5 py-4 text-sm text-[#647e82]"><span className="mr-2 inline-flex gap-1 align-middle"><i className="loading-dot" /><i className="loading-dot" /><i className="loading-dot" /></span>근거자료를 찾고 GPT 답변을 준비하고 있습니다...</div></div>;
+  return <div role="status" aria-live="polite" className="flex items-start gap-3 sm:gap-4"><div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#e0f3ee] text-[#168f78]"><ShieldCheck size={19} /></div><div className="rounded-2xl border border-[#e1e9e9] bg-white px-5 py-4 text-sm text-[#647e82]"><span className="mr-2 inline-flex gap-1 align-middle"><i className="loading-dot" /><i className="loading-dot" /><i className="loading-dot" /></span>근거자료를 찾고 AI 답변을 준비하고 있습니다...</div></div>;
 }

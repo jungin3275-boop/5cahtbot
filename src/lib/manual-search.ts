@@ -15,6 +15,9 @@ import seriousAccidentResponseManual from "@/data/serious-accident-response-manu
 import facilityHazardousWorkRules from "@/data/facility-hazardous-work-rules.json";
 import seriousAccidentPreventionGuide from "@/data/serious-accident-prevention-guide.json";
 import highRiskFactorResponseGuidePart1 from "@/data/high-risk-factor-response-guide-part1.json";
+import workerTrainingBigText2026 from "@/data/worker-training-big-text-2026.json";
+import schoolWorkerChemicalSafety from "@/data/school-worker-chemical-safety.json";
+import schoolWorkerGeneralSafety from "@/data/school-worker-general-safety.json";
 
 export type Evidence = {
   pdfPage: number;
@@ -243,6 +246,11 @@ const CATEGORY_TERMS: Record<string, string[]> = {
   forklift: ["지게차", "포크", "후진경보기"],
   crane: ["크레인", "줄걸이", "와이어로프", "슬링벨트"],
   parking: ["기계식주차", "주차설비"],
+  firstaid: ["응급처치", "절단사고", "골절", "부목", "화상응급", "가스중독"],
+  jobstress: ["직무스트레스", "업무스트레스", "스트레스관리"],
+  bullying: ["직장내괴롭힘", "괴롭힘신고", "고충처리"],
+  cardio: ["뇌심혈관", "뇌졸중", "심근경색", "한쪽마비", "가슴통증"],
+  sharp: ["분리수거", "유리조각", "날카로운폐기물", "찔림"],
   serious: ["중대재해처벌", "의무이행", "관계법령"],
   forms: ["서식", "양식"],
 };
@@ -384,6 +392,30 @@ const sources = [
     extraction: highRiskFactorResponseGuidePart1.extraction,
     pages: highRiskFactorResponseGuidePart1.pages,
   },
+  {
+    title: workerTrainingBigText2026.sourceTitle,
+    publisher: workerTrainingBigText2026.sourcePublisher,
+    date: workerTrainingBigText2026.sourceDate,
+    url: workerTrainingBigText2026.sourceUrl,
+    extraction: workerTrainingBigText2026.extraction,
+    pages: workerTrainingBigText2026.pages,
+  },
+  {
+    title: schoolWorkerChemicalSafety.sourceTitle,
+    publisher: schoolWorkerChemicalSafety.sourcePublisher,
+    date: schoolWorkerChemicalSafety.sourceDate,
+    url: schoolWorkerChemicalSafety.sourceUrl,
+    extraction: schoolWorkerChemicalSafety.extraction,
+    pages: schoolWorkerChemicalSafety.pages,
+  },
+  {
+    title: schoolWorkerGeneralSafety.sourceTitle,
+    publisher: schoolWorkerGeneralSafety.sourcePublisher,
+    date: schoolWorkerGeneralSafety.sourceDate,
+    url: schoolWorkerGeneralSafety.sourceUrl,
+    extraction: schoolWorkerGeneralSafety.extraction,
+    pages: schoolWorkerGeneralSafety.pages,
+  },
 ];
 
 const indexedPages = sources.flatMap((source) => source.pages.map((page) => {
@@ -401,7 +433,7 @@ const indexedPages = sources.flatMap((source) => source.pages.map((page) => {
     sourcePublisher: source.publisher,
     sourceDate: pageMetadata.sourceDate ?? source.date,
     sourceUrl,
-    sourceKind: pageMetadata.sourceKind ?? (sourceUrl?.includes("/html/") ? "web" : "pdf"),
+    sourceKind: pageMetadata.sourceKind ?? (sourceUrl?.includes("/html/") || sourceUrl?.includes("/board/") ? "web" : "pdf"),
     isOcr: source.extraction.includes("OCR"),
   };
 }));
