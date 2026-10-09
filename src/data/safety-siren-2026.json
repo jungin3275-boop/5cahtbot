@@ -3,7 +3,7 @@
   "sourcePublisher": "서울특별시교육청보건안전진흥원 산업안전보건지원과",
   "sourceDate": "2026-06~08",
   "sourceUrl": "https://bogun.sen.go.kr/fus/MI000000000000000599/board/BO00000146/ctgynone/list0010v.do",
-  "extraction": "Windows Korean OCR from 200 DPI renders; visually verified and manually corrected; overlapping fall and burn bulletins omitted",
+  "extraction": "Manually curated semantic chunks from visually verified source text",
   "pages": [
     {
       "pdfPage": 2,

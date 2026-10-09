@@ -1,0 +1,23 @@
+{
+  "sourceTitle": "위험성 평가, 이렇게 하세요!",
+  "sourcePublisher": "한국산업안전보건공단",
+  "sourceDate": "2023-05-19",
+  "sourceUrl": "https://oshri.kosha.or.kr/kosha/intro/easternGangwonBranch_A.do?articleNo=441274&attachNo=249025&mode=download",
+  "extraction": "Official one-page guidance, manually structured from source text",
+  "pages": [
+    {
+      "pdfPage": 1,
+      "referenceLabel": "위험성평가 한 장 안내서",
+      "category": "risk",
+      "searchTerms": [
+        "최초평가",
+        "정기평가",
+        "수시평가",
+        "사업장 성립",
+        "재검토"
+      ],
+      "section": "최초·정기·수시 위험성평가 실시 시기",
+      "text": "최초평가는 사업장 성립 후 1개월 이내 착수하며 전체 작업과 모든 유해·위험요인을 대상으로 처음 실시하는 위험성평가이다. 정기평가는 매년 기존 위험성평가 결과의 적정성을 재검토하는 평가이다. 설비·물질의 신규 도입 또는 산업재해 발생 시에는 수시평가를 실시하며, 월·주·일 단위의 상시평가를 활용할 수 있다."
+    }
+  ]
+}
