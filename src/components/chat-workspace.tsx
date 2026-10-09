@@ -239,6 +239,13 @@ function InfoItem({ icon: Icon, title, body }: { icon: typeof CircleHelp; title:
   return <div className="flex items-start gap-2.5"><Icon size={17} className="mt-0.5 shrink-0 text-[#52a493]" /><div><div className="text-xs font-bold text-[#506a6f]">{title}</div><div className="mt-0.5 text-[11px] leading-5 text-[#8a9b9e]">{body}</div></div></div>;
 }
 
+function formatEvidenceHeading(section: string, referenceLabel: string) {
+  const normalize = (value: string) => value.toLowerCase().replace(/[^0-9a-z가-힣]/g, "");
+  return normalize(section).includes(normalize(referenceLabel))
+    ? section
+    : `${section} · ${referenceLabel}`;
+}
+
 function UserBubble({ text }: { text: string }) {
   return <div className="flex justify-end"><div className="max-w-[82%] rounded-[18px] rounded-tr-[5px] bg-[#1c8d7a] px-5 py-4 text-[16px] leading-7 whitespace-pre-wrap text-white shadow-[0_5px_14px_rgba(21,127,107,0.1)]">{text}</div></div>;
 }
@@ -269,7 +276,7 @@ function AnswerBubble({ message }: { message: AnswerMessage }) {
               <div className="flex items-start gap-3">
                 <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#e9f3f0] text-[#4b9b8a]"><FileQuestion size={17} /></div>
                 <div className="min-w-0 flex-1">
-                  <div className="text-[14px] font-bold text-[#385c62]">{item.section} · {item.referenceLabel ?? `PDF ${item.pdfPage}쪽`}</div>
+                  <div className="text-[14px] font-bold text-[#385c62]">{formatEvidenceHeading(item.section, item.referenceLabel ?? `PDF ${item.pdfPage}쪽`)}</div>
                   <div className="mt-1.5 text-[12px] text-[#718b8f]">{item.sourceTitle}{item.sourcePublisher ? ` · ${item.sourcePublisher}` : ""}{item.sourceDate ? ` · ${item.sourceDate}` : ""}</div>
                   <p className="mt-3 rounded-lg bg-white px-4 py-3 text-[14px] leading-7 text-[#405f65]">{item.excerpt}</p>
                   {item.url ? <a href={item.url} target="_blank" rel="noopener noreferrer" className="mt-3 inline-flex items-center gap-1.5 text-[13px] font-bold text-[#1e806f] hover:underline">공식 원문 열기 <ExternalLink size={14} /></a> : <span className="mt-3 inline-flex text-[12px] font-semibold text-[#74898d]">첨부자료 원문 {item.referenceLabel ?? `PDF ${item.pdfPage}쪽`} 확인</span>}
