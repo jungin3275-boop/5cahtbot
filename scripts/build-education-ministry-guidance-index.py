@@ -187,7 +187,19 @@ def build_chunks(markdown: str) -> list[dict[str, object]]:
             start = match.start()
             end = matches[question_index + 1].start() if question_index + 1 < len(matches) else len(category_text)
             number = match.group(1)
-            question = match.group(2).strip()
+            continuation: list[str] = []
+            has_continuation = False
+            for line in category_text[match.end():end].splitlines():
+                line = line.strip()
+                if not line:
+                    if has_continuation:
+                        break
+                    continue
+                if line.startswith("○"):
+                    break
+                continuation.append(line.removeprefix("-").strip())
+                has_continuation = True
+            question = clean_markdown(" / ".join([match.group(2).strip(), *continuation]))
             add_semantic_chunk(pending, f"붙임4. {label} Q{number}. {question}", f"붙임4 · {label} Q{number}", category, [label, question], category_text[start:end])
 
     add_semantic_chunk(pending, "붙임5. 교육기관 산업재해 통계 조사(2021년 상반기)", "붙임5 · 2021년 상반기 통계", "accident", ["교육기관 산업재해 통계", "재해율", "조리", "시설", "청소", "넘어짐"], markdown[appendix5:])
