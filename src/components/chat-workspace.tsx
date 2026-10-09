@@ -68,13 +68,12 @@ export function ChatWorkspace() {
   }, []);
 
   function chooseQuestion(question: string) {
-    setInput(question);
     setMobileMenu(false);
-    textareaRef.current?.focus();
+    void sendQuestion(question);
   }
 
-  async function sendQuestion() {
-    const question = input.trim();
+  async function sendQuestion(questionOverride?: string) {
+    const question = (questionOverride ?? input).trim();
     if (!question || loading) return;
     idRef.current += 1;
     setMessages((current) => [...current, { id: idRef.current, kind: "user", text: question }]);
@@ -198,7 +197,7 @@ export function ChatWorkspace() {
                   placeholder="산업안전보건 업무에 대해 질문해 주세요"
                   className="max-h-36 min-h-[54px] flex-1 resize-y bg-transparent px-3 py-3 text-sm leading-6 text-[#223d43] outline-none placeholder:text-[#a2b0b2]"
                 />
-                <button aria-label="질문 전송" onClick={sendQuestion} disabled={!input.trim() || loading} className="mb-0.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#138a76] text-white transition hover:bg-[#0d7463] disabled:cursor-not-allowed disabled:bg-[#c5d9d5]"><ArrowUp size={19} strokeWidth={2.3} /></button>
+                <button aria-label="질문 전송" onClick={() => sendQuestion()} disabled={!input.trim() || loading} className="mb-0.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#138a76] text-white transition hover:bg-[#0d7463] disabled:cursor-not-allowed disabled:bg-[#c5d9d5]"><ArrowUp size={19} strokeWidth={2.3} /></button>
               </div>
               <p className="mt-2.5 text-center text-[11px] leading-4 text-[#899b9f]">Enter로 전송 · Shift+Enter로 줄바꿈 <span className="mx-1.5 text-[#c3d0d1]">|</span> 근거자료 기반 AI 안내이며 중요한 판단은 원문과 현행 기준을 확인하세요.</p>
             </div>
@@ -223,7 +222,7 @@ function Welcome({ onChoose }: { onChoose: (question: string) => void }) {
       <p className="mt-4 max-w-[620px] text-[14px] leading-7 text-[#657b80] sm:text-[15px]">학교 산업안전보건 매뉴얼과 규정, 중대산업재해 대응, 시설관리 위험작업, 고위험요인 대응, 산업안전보건위원회, 도급 협의체, 현장 개선사례, 건강관리 지원, 안전싸이렌, 교육자료 등 등록된 근거자료를 검색한 뒤 AI가 답변하고 사용한 근거 항목을 함께 보여드립니다.</p>
     </div>
     <div className="mt-10 sm:mt-12">
-      <div className="mb-4 flex items-center justify-between"><h2 className="text-[15px] font-bold text-[#28484e]">빠른 질문으로 시작하기</h2><span className="text-[11px] font-medium text-[#92a3a6]">질문을 선택하면 입력창에 채워집니다</span></div>
+      <div className="mb-4 flex items-center justify-between"><h2 className="text-[15px] font-bold text-[#28484e]">빠른 질문으로 시작하기</h2><span className="text-[11px] font-medium text-[#92a3a6]">질문을 선택하면 바로 답변합니다</span></div>
       <div className="grid gap-3 sm:grid-cols-2">
         {quickTopics.map((topic, index) => { const Icon = topicIcons[index]; return <button key={topic.id} onClick={() => onChoose(topic.question)} className="group flex min-h-[80px] items-center gap-3 rounded-2xl border border-[#e2ebeb] bg-white p-4 text-left shadow-[0_2px_7px_rgba(30,70,70,0.025)] transition hover:-translate-y-0.5 hover:border-[#a9dcd2] hover:shadow-[0_8px_20px_rgba(28,93,82,0.07)]"><span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#edf7f5] text-[#278e7c]"><Icon size={20} strokeWidth={1.8} /></span><span className="min-w-0 flex-1"><span className="block text-[12px] font-bold text-[#278977]">{topic.label}</span><span className="mt-1 block text-[12px] leading-5 text-[#62777b]">{topic.question}</span></span><ArrowRight size={16} className="shrink-0 text-[#bbcccc] transition group-hover:translate-x-1 group-hover:text-[#389c8a]" /></button>; })}
       </div>
