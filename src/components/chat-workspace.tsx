@@ -158,7 +158,7 @@ export function ChatWorkspace() {
               <div className="hidden items-center gap-2 text-sm text-[#72878b] lg:flex"><span>업무 지원</span><ChevronRight size={15} /><span className="font-semibold text-[#21454c]">AI 도우미</span></div>
             </div>
             <div className="flex items-center gap-3">
-              <span className="hidden rounded-full border border-[#d5e8e4] bg-[#f1faf7] px-3 py-1.5 text-xs font-semibold text-[#1e806f] sm:inline-flex"><span className="mr-2 mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-[#20a488]" />v1.3 AI + 근거자료</span>
+              <span className="hidden rounded-full border border-[#d5e8e4] bg-[#f1faf7] px-3 py-1.5 text-xs font-semibold text-[#1e806f] sm:inline-flex"><span className="mr-2 mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-[#20a488]" />v1.4 AI + 근거자료</span>
               <button onClick={clearConversation} title="대화 초기화" aria-label="대화 초기화" className="rounded-full border border-[#e2e9e9] bg-white p-2.5 text-[#587278] transition hover:bg-[#f5f9f9]"><RotateCcw size={16} /></button>
             </div>
           </header>
