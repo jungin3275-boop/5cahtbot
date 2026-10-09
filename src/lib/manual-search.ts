@@ -497,21 +497,15 @@ function cleanEvidenceLine(rawLine: string): string | undefined {
   return line.replace(/^[0-9]+\s+/, "").replace(/\s+([.,:])/g, "$1");
 }
 
-function excerptFor(text: string, terms: string[], isOcr: boolean): string {
-  const lines = text.split("\n").map((line) => isOcr ? cleanEvidenceLine(line) : line.replace(/\s+/g, " ").trim()).filter((line): line is string => Boolean(line));
-  if (!lines.length) return "자동 문자 인식 품질이 낮은 페이지입니다. 표시된 PDF 쪽의 원문을 직접 확인해 주세요.";
-  let bestIndex = 0;
-  let best = -1;
-  for (const [index, line] of lines.entries()) {
-    const normalized = normalize(line);
-    const score = terms.reduce((sum, term) => sum + (normalized.includes(term) ? 1 : 0), 0);
-    if (score > best) {
-      best = score;
-      bestIndex = index;
-    }
-  }
-  const chosen = lines.slice(Math.max(0, bestIndex - 1), bestIndex + 3).join(" ");
-  return chosen.length > 360 ? `${chosen.slice(0, 357)}…` : chosen;
+function excerptFor(text: string, isOcr: boolean): string {
+  const paragraphs = text.split(/\n\s*\n/u).map((paragraph) => paragraph
+    .split("\n")
+    .map((line) => isOcr ? cleanEvidenceLine(line) : line.replace(/\*\*/g, "").replace(/\s+/g, " ").trim())
+    .filter((line): line is string => Boolean(line))
+    .join(" "))
+    .filter(Boolean);
+  if (!paragraphs.length) return "자동 문자 인식 품질이 낮은 페이지입니다. 표시된 PDF 쪽의 원문을 직접 확인해 주세요.";
+  return paragraphs.join("\n\n");
 }
 
 export function searchManual(question: string, previousQuestion?: string): SearchResponse {
@@ -645,7 +639,7 @@ export function searchManual(question: string, previousQuestion?: string): Searc
       pdfPage: page.pdfPage,
       referenceLabel: page.referenceLabel,
       section: page.section,
-      excerpt: excerptFor(page.text, terms, page.isOcr),
+      excerpt: excerptFor(page.text, page.isOcr),
       sourceTitle: page.sourceTitle,
       sourcePublisher: page.sourcePublisher,
       sourceDate: page.sourceDate,
