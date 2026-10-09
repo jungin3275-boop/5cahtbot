@@ -539,6 +539,8 @@ export function searchManual(question: string, previousQuestion?: string): Searc
         : "general";
   const workerHealthQuestion = /(폐암|근로자건강센터|산업보건의|후드풍속|무료컨설팅)/u.test(normalizedQuestion);
   const committeeQuestion = /산업안전보건위원회/u.test(normalizedQuestion);
+  const accidentResponseQuestion = category === "accident"
+    && /(?:산업재해|사고).*(?:발생|났|나면).*(?:어떻게|대응|조치|처리|해야)|(?:어떻게|대응|조치|처리).*(?:산업재해|사고)/u.test(normalizedQuestion);
   const committeeIntent = /(몇명|구성|근로자위원|사용자위원)/u.test(normalizedQuestion)
     ? "composition"
     : /(회의|분기|개최|정족수|과반수|찬성)/u.test(normalizedQuestion)
@@ -619,7 +621,15 @@ export function searchManual(question: string, previousQuestion?: string): Searc
           : committeeIntent === "agenda" && page.section.includes("심의·의결") ? 100
             : 20)
       : 0;
-    const score = matched.length * 2 + titleHits * 3 + aliasHits * 5 + (page.category === category ? 12 : 0) + supervisorBonus + supervisorDutyBonus + currentTrainingBonus + contractorActionBonus + contractorCouncilBonus + newEmployeeTrainingBonus + regularTrainingBonus + workerHealthBonus + committeeBonus;
+    const accidentResponseBonus = accidentResponseQuestion
+      ? (page.section.includes("산업재해 비상대응체계") ? 110
+        : page.section.includes("중대산업재해 최초 발견자의 즉시 조치") ? 105
+          : page.section.includes("제29조(사고 발생 시 처리 절차)") ? 100
+            : page.section.includes("산업재해 보고와 재발방지") ? 95
+              : page.section.includes("산업재해 Q8") ? 90
+                : 0)
+      : 0;
+    const score = matched.length * 2 + titleHits * 3 + aliasHits * 5 + (page.category === category ? 12 : 0) + supervisorBonus + supervisorDutyBonus + currentTrainingBonus + contractorActionBonus + contractorCouncilBonus + newEmployeeTrainingBonus + regularTrainingBonus + workerHealthBonus + committeeBonus + accidentResponseBonus;
     return { page, score, matched };
   }).filter((entry) => entry.score >= 4)
     .sort((a, b) => b.score - a.score || a.page.pdfPage - b.page.pdfPage);
@@ -627,7 +637,7 @@ export function searchManual(question: string, previousQuestion?: string): Searc
   if (!ranked.length) return fallback;
   const best = ranked[0];
   if (!category && best.matched.length < 2 && best.score < 6) return fallback;
-  const selected = ranked.slice(0, 3);
+  const selected = ranked.slice(0, accidentResponseQuestion ? 5 : 3);
   const guide = category ? CATEGORY_GUIDES[category] : undefined;
   return {
     status: "found",
