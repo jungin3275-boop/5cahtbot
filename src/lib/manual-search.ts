@@ -18,6 +18,9 @@ import highRiskFactorResponseGuidePart1 from "@/data/high-risk-factor-response-g
 import workerTrainingBigText2026 from "@/data/worker-training-big-text-2026.json";
 import schoolWorkerChemicalSafety from "@/data/school-worker-chemical-safety.json";
 import schoolWorkerGeneralSafety from "@/data/school-worker-general-safety.json";
+import aerialWorkPlatformSafetyManual from "@/data/aerial-work-platform-safety-manual.json";
+import workplaceHealthManagement2024 from "@/data/workplace-health-management-2024.json";
+import educationServiceSafetyHealthFaq from "@/data/education-service-safety-health-faq.json";
 
 export type Evidence = {
   pdfPage: number;
@@ -276,7 +279,7 @@ const QUESTION_ROUTES: QuestionRoute[] = [
   {
     test: /화상환자.*(?:얼음|연고)/u,
     category: "firstaid",
-    preferredSections: ["이상온도 접촉과 화상 응급조치"],
+    preferredSections: ["사업장 화상 발생 시 응급조치", "이상온도 접촉과 화상 응급조치"],
     guide: {
       message: "등록된 근거자료는 화상 부위를 깨끗한 찬물로 식히도록 안내하며, 얼음이나 연고 사용 여부는 직접 명시하지 않습니다.",
       keyPoints: [
@@ -328,7 +331,7 @@ const QUESTION_ROUTES: QuestionRoute[] = [
   { test: /(?:화학제품|msds).*경고표지.*(?:없|어떻게)/u, category: "msds", preferredSections: ["붙임4. 화학물질·MSDS Q3"] },
   { test: /msds교육.*물질별/u, category: "msds", preferredSections: ["붙임4. 화학물질·MSDS Q4"] },
   { test: /msds교육.*(?:주기|교육시간)/u, category: "msds", preferredSections: ["붙임4. 화학물질·MSDS Q5"] },
-  { test: /화학물질.*(?:눈|피부).*(?:닿|조치)/u, category: "msds", preferredSections: ["세정제·락스의 혼합과 분무 사용 금지"], focusTerms: ["흐르는 물", "15분"] },
+  { test: /화학물질.*(?:눈|피부).*(?:닿|조치)/u, category: "msds", preferredSections: ["화학제품별 MSDS 응급조치 요령 확인", "세정제·락스의 혼합과 분무 사용 금지"], focusTerms: ["물로", "세척", "의학적 조치"] },
   { test: /(?:페인트|신나|휘발유).*(?:보관|저장)/u, category: "msds", preferredSections: ["학교 화학제품의 운반·보관 수칙", "인화성·유해 위험물질 취급 설비 관리"] },
   { test: /화학제품.*(?:음료수병|다른용기|옮겨담)/u, category: "msds", preferredSections: ["학교 화학제품의 운반·보관 수칙"] },
 
@@ -338,12 +341,13 @@ const QUESTION_ROUTES: QuestionRoute[] = [
   {
     test: /고소작업대.*안전대/u,
     category: "aerial",
-    preferredSections: ["고소작업대 작업 전·중 안전수칙"],
+    preferredSections: ["시저형·자주식 고소작업대 안전대 부착 위치", "고소작업대 작업 전·중 안전수칙"],
     guide: {
-      message: "현재 등록 자료에는 안전대의 구체적인 체결 위치가 명시되어 있지 않습니다.",
+      message: "시저형·자주식 고소작업대에서는 안전대를 구조물 또는 작업대에 마련된 안전대 부착설비에 체결합니다.",
       keyPoints: [
-        "자료는 작업대 난간과 안전대 부착 상태를 작업 전에 확인하도록 안내합니다.",
-        "실제 체결 위치는 사용하는 장비의 설명서와 표시된 안전대 부착설비를 확인해야 합니다.",
+        "작업 전 장비에 표시된 안전대 부착설비와 체결 상태를 확인합니다.",
+        "안전난간을 밟고 올라서거나 작업대 밖의 구조물로 이동하지 않습니다.",
+        "안전하게 체결할 부착설비가 없으면 작업을 시작하지 않고 추락방지조치를 먼저 마련합니다.",
       ],
     },
   },
@@ -392,12 +396,13 @@ const QUESTION_ROUTES: QuestionRoute[] = [
   {
     test: /산업안전보건위원회.*(?:어떤기관|설치)/u,
     category: "organization",
-    preferredSections: ["산업안전보건법 과제 2", "산업안전보건위원회의 목적과 구성"],
+    preferredSections: ["학교 산업안전보건위원회 설치 대상 판단", "산업안전보건법 과제 2", "산업안전보건위원회의 목적과 구성"],
     guide: {
-      message: "등록 자료는 현업근로자 100인 이상 사업장에 산업안전보건위원회를 두도록 안내합니다.",
+      message: "교육서비스업에서는 해당 사업장 소속 현업업무종사자가 100명 이상이면 산업안전보건위원회 설치 대상입니다.",
       keyPoints: [
+        "인원 산정에는 수급인 근로자를 포함하지 않습니다.",
         "위원회는 사업장의 안전과 보건에 관한 중요사항을 심의·의결합니다.",
-        "실제 적용 여부는 사업장 단위와 현업근로자 수를 확인해 판단해야 합니다.",
+        "학교가 독립된 사업장인지 여부는 인사·노무·회계와 의사결정의 독립성을 종합해 판단합니다.",
       ],
     },
   },
@@ -569,6 +574,30 @@ const sources = [
     url: schoolWorkerGeneralSafety.sourceUrl,
     extraction: schoolWorkerGeneralSafety.extraction,
     pages: schoolWorkerGeneralSafety.pages,
+  },
+  {
+    title: aerialWorkPlatformSafetyManual.sourceTitle,
+    publisher: aerialWorkPlatformSafetyManual.sourcePublisher,
+    date: aerialWorkPlatformSafetyManual.sourceDate,
+    url: aerialWorkPlatformSafetyManual.sourceUrl,
+    extraction: aerialWorkPlatformSafetyManual.extraction,
+    pages: aerialWorkPlatformSafetyManual.pages,
+  },
+  {
+    title: workplaceHealthManagement2024.sourceTitle,
+    publisher: workplaceHealthManagement2024.sourcePublisher,
+    date: workplaceHealthManagement2024.sourceDate,
+    url: workplaceHealthManagement2024.sourceUrl,
+    extraction: workplaceHealthManagement2024.extraction,
+    pages: workplaceHealthManagement2024.pages,
+  },
+  {
+    title: educationServiceSafetyHealthFaq.sourceTitle,
+    publisher: educationServiceSafetyHealthFaq.sourcePublisher,
+    date: educationServiceSafetyHealthFaq.sourceDate,
+    url: educationServiceSafetyHealthFaq.sourceUrl,
+    extraction: educationServiceSafetyHealthFaq.extraction,
+    pages: educationServiceSafetyHealthFaq.pages,
   },
 ];
 
