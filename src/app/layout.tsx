@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "학교 산업안전보건 AI | v1.2 근거 기반 답변",
+  title: "학교 산업안전보건 AI | v1.7 근거 기반 답변",
   description: "학교 산업안전보건 자료를 함께 검색하는 근거 기반 AI 도우미",
 };
 

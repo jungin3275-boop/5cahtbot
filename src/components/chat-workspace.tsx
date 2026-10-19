@@ -147,7 +147,7 @@ export function ChatWorkspace() {
             <div className="flex items-center gap-2 text-xs font-bold text-[#27675f]"><ShieldCheck size={16} /> 근거 중심 안내</div>
             <p className="mt-2 text-xs leading-5 text-[#718588]">등록된 근거자료를 검색한 뒤 AI가 근거 번호와 함께 답변합니다.</p>
           </div>
-          <div className="px-2 pt-5 text-[11px] text-[#9aabae]">학교 산업안전보건 AI · v1.2</div>
+          <div className="px-2 pt-5 text-[11px] text-[#9aabae]">학교 산업안전보건 AI · v1.7</div>
         </aside>
 
         <div className="flex min-h-0 min-w-0 flex-1 flex-col">
@@ -158,7 +158,7 @@ export function ChatWorkspace() {
               <div className="hidden items-center gap-2 text-sm text-[#72878b] lg:flex"><span>업무 지원</span><ChevronRight size={15} /><span className="font-semibold text-[#21454c]">AI 도우미</span></div>
             </div>
             <div className="flex items-center gap-3">
-              <span className="hidden rounded-full border border-[#d5e8e4] bg-[#f1faf7] px-3 py-1.5 text-xs font-semibold text-[#1e806f] sm:inline-flex"><span className="mr-2 mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-[#20a488]" />v1.4 AI + 근거자료</span>
+              <span className="hidden rounded-full border border-[#d5e8e4] bg-[#f1faf7] px-3 py-1.5 text-xs font-semibold text-[#1e806f] sm:inline-flex"><span className="mr-2 mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-[#20a488]" />v1.7 AI + 근거자료</span>
               <button onClick={clearConversation} title="대화 초기화" aria-label="대화 초기화" className="rounded-full border border-[#e2e9e9] bg-white p-2.5 text-[#587278] transition hover:bg-[#f5f9f9]"><RotateCcw size={16} /></button>
             </div>
           </header>
