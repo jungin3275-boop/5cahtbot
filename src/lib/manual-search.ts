@@ -70,12 +70,12 @@ const CATEGORY_TERMS: Record<string, string[]> = {
   ppe: ["보호구", "안전모", "안전화"],
   contractor: ["도급", "용역", "업체", "계약", "공사", "수급인"],
   supervisor: ["관리감독자", "집합교육", "비대면실시간교육", "우편통신교육", "수료증", "교육이수", "연간16시간"],
-  education: ["교육", "채용", "신규", "훈련"],
-  accident: ["산업재해", "재해", "사고", "보고", "응급", "부상", "중대재해"],
+  education: ["안전보건교육", "정기교육", "채용시교육", "채용", "신규", "훈련"],
+  accident: ["산업재해", "산재", "재해", "사고", "보고", "응급", "부상", "중대재해"],
   health: ["건강진단", "건강검진", "검진", "건강관리"],
   risk: ["위험성평가", "위험성", "위험요인", "유해위험요인"],
   musculoskeletal: ["근골격계", "부담작업", "유해요인조사", "허리통증", "요통", "손목작업", "오래서서", "작업자세", "중량물"],
-  msds: ["msds", "물질안전보건자료", "화학물질", "세제", "세척제", "소독제"],
+  msds: ["msds", "물질안전보건자료", "화학물질", "세제", "세척제", "소독제", "경고표지", "라벨"],
   environment: ["작업환경측정", "작업환경", "노출", "측정"],
   heat: ["온열질환", "폭염", "체감온도", "열사병", "열탈진", "무더위", "휴게시설"],
   weather: ["호우", "태풍", "폭우", "침수", "강풍", "산사태", "악천후"],
@@ -87,7 +87,7 @@ const CATEGORY_TERMS: Record<string, string[]> = {
   lighting: ["조도", "어두운", "조명", "배관공동구", "미화창고"],
   machinery: ["송풍기", "벨트", "캔버스", "윤활"],
   electrical: ["감전", "차단기", "충전부", "콘센트", "접지", "누전"],
-  fall: ["추락", "떨어짐", "옥상", "사다리", "안전난간", "현수막", "안전계단"],
+  fall: ["추락", "떨어짐", "옥상", "사다리", "안전난간", "현수막", "안전계단", "고소작업", "높은곳"],
   workstop: ["작업중지권", "작업중지", "작업재개", "급박한위험"],
   hotwork: ["화기작업", "용접", "불티", "화재감시자"],
   confined: ["밀폐공간", "산소농도", "송기마스크", "공기호흡기", "원콜"],
@@ -101,7 +101,7 @@ const CATEGORY_TERMS: Record<string, string[]> = {
   forklift: ["지게차", "포크", "후진경보기"],
   crane: ["크레인", "줄걸이", "와이어로프", "슬링벨트"],
   parking: ["기계식주차", "주차설비"],
-  firstaid: ["응급처치", "절단사고", "골절", "부목", "화상응급", "가스중독"],
+  firstaid: ["응급처치", "절단사고", "골절", "부목", "화상응급", "가스중독", "쓰러짐", "실신", "의식없음", "호흡없음"],
   jobstress: ["직무스트레스", "업무스트레스", "스트레스관리"],
   bullying: ["직장내괴롭힘", "괴롭힘신고", "고충처리"],
   cardio: ["뇌심혈관", "뇌졸중", "심근경색", "한쪽마비", "가슴통증"],
@@ -164,6 +164,8 @@ const QUESTION_ROUTES: QuestionRoute[] = [
     "관리감독자는 자신이 지휘·감독하는 작업의 설비와 보호구를 점검하고, 근로자를 교육·지도하며, 사고 보고·응급조치와 위험성평가 개선에 참여합니다.",
     ["기계·기구·설비의 안전보건 상태와 이상 유무를 확인합니다.", "작업복·보호구·방호장치의 착용과 사용을 교육·지도합니다.", "작업장 정리정돈과 통로를 확인하고 산업재해 발생 시 보고·응급조치를 합니다.", "유해·위험요인 파악과 개선조치 시행에 참여합니다."]),
   unavailableRoute(/학교.*안전보건업무.*어느부서/u, "안전보건 담당 부서는 학교·교육청의 조직분장에 따라 달라 등록 자료만으로 특정할 수 없습니다. 해당 기관의 업무분장표에서 안전보건주관부서와 관리감독자 지정 현황을 확인해 주세요."),
+  unavailableRoute(/경기도교육청.*(?:서울|차이|다른)/u, "현재 등록된 근거자료는 서울특별시교육청 기준이므로 경기도교육청 지침과의 차이를 직접 비교할 수 없습니다. 경기도교육청의 최신 산업안전보건 지침을 함께 확보한 뒤 항목별로 비교해 주세요."),
+  unavailableRoute(/석면.*(?:해체|철거).*(?:신고|절차)/u, "석면 해체·제거 신고 절차를 직접 설명하는 근거자료가 현재 등록되어 있지 않습니다. 임의로 해체하지 말고 학교 석면관리 담당자와 교육청에 알린 뒤 관할 고용노동관서와 적격 석면조사·해체기관의 공식 안내를 확인해 주세요."),
   directRoute(/학교.*산업안전보건예산.*편성.*집행/u, "serious", ["중대재해처벌법 과제 4"],
     "안전보건 예산은 위험요인 발굴과 개선에 필요한 인력·시설·장비 비용을 구체적으로 산정해 편성하고, 정한 안전보건 용도에 맞게 집행합니다.",
     ["컨설팅 등 위험요인 발굴 비용을 반영합니다.", "확인된 위험을 제거·대체하거나 안전시설과 장비를 갖추는 비용을 반영합니다.", "집행 내역과 개선 결과를 연결해 확인할 수 있도록 기록합니다."]),
@@ -348,7 +350,7 @@ const QUESTION_ROUTES: QuestionRoute[] = [
   unavailableRoute(/폭설후.*눈.*안전수칙/u, "제설 작업에 특화된 근거자료는 현재 등록되어 있지 않습니다. 교통·미끄러짐·한랭·근골격계 위험을 포함한 작업계획과 학교 겨울철 대응지침을 확인해 주세요."),
   unavailableRoute(/미세먼지.*옥외작업/u, "미세먼지 단계별 옥외작업 기준은 현재 등록 자료에 없습니다. 당일 대기질과 교육청·보건당국 지침에 따라 작업 연기·단축과 호흡용 보호구 필요 여부를 판단해 주세요."),
   unavailableRoute(/응급처치키트.*무엇/u, "응급처치함의 표준 구성품 목록은 현재 등록 자료에 없습니다. 학교 보건·응급의료 지침과 작업별 위험을 기준으로 보건담당자가 구성품·수량·유효기간을 정해 관리해 주세요."),
-  directRoute(/작업중.*실신/u, "firstaid", ["뇌심혈관질환 의심 환자 발생 시 대응", "온열질환 증상 확인과 응급조치"],
+  directRoute(/(?:작업중|사람|근로자|작업자).*(?:쓰러|실신|의식없|호흡없|호흡이상)/u, "firstaid", ["뇌심혈관질환 의심 환자 발생 시 대응", "온열질환 증상 확인과 응급조치"],
     "작업 중 실신하면 즉시 작업을 멈추고 119에 신고한 뒤 의식과 호흡을 확인합니다. 원인을 단정해 물이나 약을 억지로 먹이지 않습니다.",
     ["호흡이 없거나 비정상이면 119 지시에 따라 심폐소생술과 AED를 시행합니다.", "호흡이 있으면 기도와 낙상 위험을 확인하며 구급대가 올 때까지 곁을 지킵니다.", "더위·가스·전기 등 현장 위험이 남아 있으면 구조자의 안전을 먼저 확보합니다."]),
 
@@ -412,7 +414,7 @@ const QUESTION_ROUTES: QuestionRoute[] = [
   directRoute(/사고보고.*끝난뒤/u, "accident", ["붙임4. 산업재해 Q8", "산업재해 보고와 재발방지"],
     "사고 보고 후에는 재발방지대책을 시행하고 해당 작업에 대한 수시 위험성평가를 실시합니다.",
     ["3일 이상 휴업이 필요한 재해가 발생한 작업은 수시 위험성평가를 지체 없이 실시합니다.", "근골격계질환이 업무상 질병으로 인정되면 해당 작업의 수시 유해요인조사를 실시합니다.", "개선조치의 이행 여부를 확인하고 관련 기록을 보존합니다."]),
-  directRoute(/위험성평가.*매년실시/u, "risk", ["근로자 참여 위험성평가", "붙임4. 위험성평가 Q1", "제23조(위험성평가의 실시)"],
+  directRoute(/(?:정기)?위험성평가.*(?:매년실시|얼마나자주|몇년에한번|몇년마다|주기)|정기위험성평가.*(?:몇번|언제)/u, "risk", ["최초·정기·수시 위험성평가 실시 시기", "근로자 참여 위험성평가", "제23조(위험성평가의 실시)"],
     "정기 위험성평가는 전체 작업을 대상으로 매년 1회 실시합니다.",
     ["산업재해 발생이나 작업자·설비·방법 변경 시에는 정기평가를 기다리지 않고 수시평가를 실시합니다.", "위험성평가 실시규정은 최초 작성 후 변동사항이 없으면 계속 활용할 수 있습니다."]),
   directRoute(/최초위험성평가.*정기위험성평가/u, "risk", ["최초·정기·수시 위험성평가 실시 시기", "근로자 참여 위험성평가", "제23조(위험성평가의 실시)"],
@@ -460,9 +462,15 @@ const QUESTION_ROUTES: QuestionRoute[] = [
   directRoute(/락스.*분무.*이유/u, "msds", ["소독제 분무·분사 금지와 표면소독", "세정제·락스의 혼합과 분무 사용 금지"],
     "락스를 분무하면 소독제가 공기 중에 퍼져 작업자가 흡입하거나 눈·피부에 노출될 위험이 커지므로 분무 방식으로 사용하지 않습니다.",
     ["제품 설명서와 MSDS에 따른 농도와 사용방법을 지킵니다.", "표면에는 분무보다 소독액을 묻힌 천으로 닦는 방식을 사용합니다.", "산성 세정제 등 다른 화학제품과 섞으면 유해가스가 발생할 수 있으므로 혼합하지 않습니다."]),
-  directRoute(/경고표지.*없/u, "msds", ["붙임4. 화학물질·MSDS Q3"],
+  directRoute(/(?:경고표지|라벨).*없/u, "msds", ["붙임4. 화학물질·MSDS Q3"],
     "MSDS 대상 화학제품 용기에 경고표지가 없으면 필요한 내용을 작성해 용기에 부착해야 합니다.",
     ["제품명 또는 화학물질 명칭과 그림문자를 표시합니다.", "신호어와 유해·위험 문구, 예방조치 문구를 표시합니다.", "제조사 또는 공급자의 주소와 연락처를 표시합니다."]),
+  directRoute(/(?:높은곳|고소작업).*(?:작업|안전수칙|주의|지켜)/u, "fall", ["발코니·캐노피 등 2m 이상 고소작업", "사다리를 사용하는 시설관리 작업"],
+    "높은 곳에서 작업할 때에는 안전한 작업발판과 추락방지조치를 먼저 마련하고, 작업 높이와 조건에 맞는 보호구를 사용합니다.",
+    ["가능하면 안전난간이 있는 작업발판을 사용합니다.", "사다리를 사용할 때에는 전도방지장치를 고정하고 2인 1조로 작업합니다.", "2m 이상에서 추락 위험이 남으면 안전대를 적합한 부착점에 체결합니다."]),
+  directRoute(/(?:미화원|청소근로자|청소하시는분|청소하는분).*(?:건강진단|건강검진)/u, "health", ["일반·특수·배치 전 건강진단", "산업안전보건법 과제 5. 근로자 건강관리에 관한 사항"],
+    "미화원·청소근로자처럼 상시 근무하는 비사무직 근로자는 일반건강진단을 1년에 1회 실시합니다.",
+    ["유해인자에 노출되는 업무라면 일반건강진단과 별도로 특수건강진단 대상 여부를 확인합니다.", "다른 법령에 따른 검진이 일반건강진단으로 인정되는지는 검사항목과 실시기관 요건을 확인합니다."]),
   directRoute(/msds교육.*주기.*교육시간/u, "msds", ["붙임4. 화학물질·MSDS Q5"],
     "MSDS 교육은 별도의 정기 주기나 최소 교육시간이 정해져 있지는 않지만, 법에서 정한 교육 사유가 생기면 실시해야 합니다.",
     ["대상 물질을 제조·사용·운반·저장하는 작업에 근로자를 배치할 때 실시합니다.", "새로운 대상 물질이 도입되거나 유해성·위험성 정보가 변경될 때 실시합니다.", "해당 교육시간은 안전보건교육을 실시한 시간으로 인정됩니다."]),
@@ -583,7 +591,7 @@ const QUESTION_ROUTES: QuestionRoute[] = [
   // 위험성평가
   { test: /위험성평가.*(?:순서|절차)/u, category: "risk", preferredSections: ["위험성평가 절차", "근로자 참여 위험성평가"] },
   { test: /위험성평가실시규정.*매년/u, category: "risk", preferredSections: ["붙임4. 위험성평가 Q1"] },
-  { test: /위험성평가.*매년|최초위험성평가.*정기/u, category: "risk", preferredSections: ["최초·정기·수시 위험성평가 실시 시기", "근로자 참여 위험성평가", "제23조(위험성평가의 실시)"] },
+  { test: /(?:정기)?위험성평가.*(?:매년|얼마나자주|몇년에한번|몇년마다|주기)|최초위험성평가.*정기/u, category: "risk", preferredSections: ["최초·정기·수시 위험성평가 실시 시기", "근로자 참여 위험성평가", "제23조(위험성평가의 실시)"] },
   { test: /수시위험성평가.*(?:언제|어떤경우)|산업재해.*위험성평가.*다시/u, category: "risk", preferredSections: ["근로자 참여 위험성평가", "산업안전보건법 과제 9. 유해‧위험 방지 활동", "붙임4. 산업재해 Q8"] },
   { test: /위험성.*낮.*개선대책/u, category: "risk", preferredSections: ["붙임4. 위험성평가 Q3"] },
   { test: /위험성평가서식.*(?:법적|정해)/u, category: "risk", preferredSections: ["붙임4. 위험성평가 Q2"] },
@@ -594,7 +602,7 @@ const QUESTION_ROUTES: QuestionRoute[] = [
   { test: /세제.*msds.*대상/u, category: "msds", preferredSections: ["물질안전보건자료 관리", "물질안전보건자료 게시·비치·교육"] },
   { test: /락스.*(?:다른세제|섞)|락스.*분무/u, category: "msds", preferredSections: ["세정제·락스의 혼합과 분무 사용 금지"] },
   { test: /msds.*(?:어느장소|비치)/u, category: "msds", preferredSections: ["붙임4. 화학물질·MSDS Q1", "물질안전보건자료 게시·비치·교육"] },
-  { test: /(?:화학제품|msds).*경고표지.*(?:없|어떻게)/u, category: "msds", preferredSections: ["붙임4. 화학물질·MSDS Q3"] },
+  { test: /(?:화학제품|msds|세제).*(?:경고표지|라벨).*(?:없|어떻게)|(?:경고표지|라벨).*(?:없|어떻게)/u, category: "msds", preferredSections: ["붙임4. 화학물질·MSDS Q3"] },
   { test: /msds교육.*물질별/u, category: "msds", preferredSections: ["붙임4. 화학물질·MSDS Q4"] },
   { test: /msds교육.*(?:주기|교육시간)/u, category: "msds", preferredSections: ["붙임4. 화학물질·MSDS Q5"] },
   { test: /화학물질.*(?:눈|피부).*(?:닿|조치)/u, category: "msds", preferredSections: ["화학제품별 MSDS 응급조치 요령 확인", "세정제·락스의 혼합과 분무 사용 금지"], focusTerms: ["물로", "세척", "의학적 조치"] },
@@ -912,13 +920,33 @@ const indexedPages = sources.flatMap((source) => source.pages.map((page) => {
 }));
 
 const STOP_WORDS = new Set(["학교", "근로자", "어떻게", "무엇", "어떤", "해야", "하나요", "있나요", "관한", "관련", "대해", "경우", "우리", "에서", "위한", "확인"]);
+const LOW_SIGNAL_TERMS = new Set(["산업안전보건", "안전보건", "학교", "교육청", "서울", "지침", "자료", "관련"]);
 
 function normalize(value: string): string {
   return value.toLowerCase().normalize("NFKC").replace(/[^\p{L}\p{N}]+/gu, " ").trim();
 }
 
+const QUERY_SYNONYMS: Array<{ test: RegExp; terms: string[] }> = [
+  { test: /산재/u, terms: ["산업재해"] },
+  { test: /뭐부터/u, terms: ["무엇부터"] },
+  { test: /라벨/u, terms: ["경고표지"] },
+  { test: /높은곳|높은장소|높은데/u, terms: ["고소작업", "추락", "사다리"] },
+  { test: /건강검진/u, terms: ["건강진단"] },
+  { test: /청소하시는분|청소하는분|청소직원/u, terms: ["청소근로자", "미화원", "비사무직"] },
+  { test: /일용직/u, terms: ["일용근로자"] },
+  { test: /쓰러|실신/u, terms: ["응급처치", "의식", "호흡", "119"] },
+  { test: /얼마나자주|몇년에한번|몇년마다/u, terms: ["주기", "매년"] },
+];
+
+function expandQuery(value: string): string {
+  const normalized = normalize(value);
+  const condensed = normalized.replaceAll(" ", "");
+  const aliases = QUERY_SYNONYMS.flatMap((entry) => entry.test.test(condensed) ? entry.terms : []);
+  return [...new Set([...aliases, normalized])].join(" ");
+}
+
 function queryTerms(question: string): string[] {
-  return normalize(question).split(/\s+/).filter((word) => word.length >= 2 && !STOP_WORDS.has(word)).map((word) => word.replace(/(하면|해서|했을|할지|할까|받아야|해야|하나요|인가요|습니까|나요|은|는|이|가|을|를|에|도|로|의|과|와|에서|에는|에게|마다|부터|까지)$/u, "")).filter((word) => word.length >= 2);
+  return [...new Set(expandQuery(question).split(/\s+/).filter((word) => word.length >= 2 && !STOP_WORDS.has(word)).map((word) => word.replace(/(하면|해서|했을|할지|할까|받아야|해야|하나요|인가요|습니까|나요|은|는|이|가|을|를|에|도|로|의|과|와|에서|에는|에게|마다|부터|까지)$/u, "")).filter((word) => word.length >= 2))];
 }
 
 const OUT_OF_SCOPE_RULES = [
@@ -935,7 +963,7 @@ function outOfScopeNotice(question: string): string | undefined {
 }
 
 function detectCategory(question: string): string | undefined {
-  const condensed = normalize(question).replaceAll(" ", "");
+  const condensed = expandQuery(question).replaceAll(" ", "");
   let best: { category: string; length: number } | undefined;
   for (const [category, terms] of Object.entries(CATEGORY_TERMS)) {
     for (const term of terms) {
@@ -1033,6 +1061,32 @@ function citedStatement(statement: string, evidenceId: number): string {
   return `${statement.replace(/[.。]\s*$/u, "").trim()} [근거 ${evidenceId}].`;
 }
 
+function guideFromRoute(
+  pages: Array<{ text: string; isOcr: boolean }>,
+  guide: { message: string; keyPoints: string[] },
+): { message: string; keyPoints: GroundedPoint[] } | undefined {
+  const evidenceTexts = pages.map((page) => normalize(excerptFor(page.text, page.isOcr)).replaceAll(" ", ""));
+  const evidenceIdFor = (statement: string): number | undefined => {
+    const terms = queryTerms(statement).map((term) => normalize(term).replaceAll(" ", ""));
+    const numbers = statement.match(/\d+(?:[.,]\d+)?/gu) ?? [];
+    const ranked = evidenceTexts.map((text, index) => ({
+      evidenceId: index + 1,
+      numberMatch: numbers.every((number) => text.includes(number)),
+      score: terms.filter((term) => text.includes(term)).length,
+    })).filter((entry) => entry.numberMatch)
+      .sort((a, b) => b.score - a.score || a.evidenceId - b.evidenceId);
+    const best = ranked[0];
+    return best && best.score >= Math.min(2, Math.max(1, terms.length)) ? best.evidenceId : undefined;
+  };
+  const messageEvidenceId = evidenceIdFor(guide.message);
+  if (!messageEvidenceId) return undefined;
+  const keyPoints = guide.keyPoints.flatMap((text) => {
+    const evidenceId = evidenceIdFor(text);
+    return evidenceId ? [{ text, evidenceIds: [evidenceId] }] : [];
+  });
+  return { message: citedStatement(guide.message, messageEvidenceId), keyPoints };
+}
+
 function guideFromEvidence(pages: Array<{ text: string; isOcr: boolean }>, terms: string[], focusTerms: string[] = []): { message: string; keyPoints: GroundedPoint[] } | undefined {
   const statements = pages.flatMap((page, evidenceIndex) => {
     let text = excerptFor(page.text, page.isOcr);
@@ -1073,7 +1127,8 @@ function guideFromEvidence(pages: Array<{ text: string; isOcr: boolean }>, terms
 
 export function searchManual(question: string, previousContext?: ConversationContext): SearchResponse {
   const previousQuestion = previousContext?.question;
-  const normalizedQuestion = normalize(question).replaceAll(" ", "");
+  const normalizedQuestion = expandQuery(question).replaceAll(" ", "");
+  const normalizedPreviousQuestion = previousQuestion ? expandQuery(previousQuestion).replaceAll(" ", "") : "";
   const contextualRoute: QuestionRoute | undefined = previousContext?.category === "accident" && /(?:신청.*서류|서류.*신청|무슨서류|필요서류)/u.test(normalizedQuestion)
     ? {
         test: /(?:)/u,
@@ -1081,6 +1136,17 @@ export function searchManual(question: string, previousContext?: ConversationCon
         preferredSections: ["산재보험 요양급여 신청 서류", "산재보험 요양급여 신청 절차", "산업재해 보상 신청"],
         focusTerms: ["요양급여신청서", "요양급여신청 소견서"],
       }
+    : previousContext?.category === "education"
+      && /(?:일용직|일용근로자)/u.test(normalizedQuestion)
+      && /(?:신규|채용)/u.test(normalizedPreviousQuestion)
+      ? directRoute(/(?:)/u, "education", ["계약 형태별 채용 시 교육시간"],
+          "일용근로자의 채용 시 안전보건교육은 1시간 이상 실시합니다.",
+          ["근로계약기간이 1주일 이하인 기간제근로자도 1시간 이상 교육합니다.", "1주일 초과 1개월 이하인 기간제근로자는 4시간 이상, 1개월 초과 기간제근로자와 그 밖의 근로자는 8시간 이상 교육합니다."])
+      : previousContext?.category === "risk"
+        && /(?:그결과|결과).*(?:보관|보존)|얼마나보관/u.test(normalizedQuestion)
+        ? directRoute(/(?:)/u, "risk", ["근로자 참여 위험성평가", "위험성평가 절차", "제23조(위험성평가의 실시)"],
+            "위험성평가 결과와 개선조치 기록은 3년간 보존합니다.",
+            ["평가 대상과 위험요인, 위험성 결정 결과, 감소대책을 함께 기록합니다.", "개선조치의 담당자·기한·완료 여부를 연결해 관리합니다."])
     : undefined;
   const questionRoute = QUESTION_ROUTES.find((route) => route.test.test(normalizedQuestion)) ?? contextualRoute;
   const currentCategory = detectCategory(question);
@@ -1223,7 +1289,8 @@ export function searchManual(question: string, previousContext?: ConversationCon
   const best = ranked[0];
   const requiredLexicalHits = Math.min(2, Math.max(1, terms.length));
   const lexicalHits = best.matched.length + Math.min(best.aliasHits, 2);
-  if (!questionRoute && (best.score < 8 || lexicalHits < requiredLexicalHits)) return fallback;
+  const specificLexicalHits = best.matched.filter((term) => !LOW_SIGNAL_TERMS.has(term)).length + Math.min(best.aliasHits, 2);
+  if (!questionRoute && (best.score < 8 || lexicalHits < requiredLexicalHits || specificLexicalHits < 1)) return fallback;
   const routed = questionRoute
     ? ranked.filter((entry) => entry.routeBonus > 0).sort((a, b) => a.routeIndex - b.routeIndex || b.score - a.score)
     : [];
@@ -1240,7 +1307,10 @@ export function searchManual(question: string, previousContext?: ConversationCon
     .filter((entry) => !selectedPages.has(entry.page))
     .filter((entry) => entry.score >= relatedThreshold && (!category || entry.page.category === category))
     .slice(0, 9);
-  const guide = guideFromEvidence(selected.map((entry) => entry.page), terms, questionRoute?.focusTerms);
+  const selectedPageList = selected.map((entry) => entry.page);
+  const guide = questionRoute?.guide
+    ? guideFromRoute(selectedPageList, questionRoute.guide) ?? guideFromEvidence(selectedPageList, terms, questionRoute.focusTerms)
+    : guideFromEvidence(selectedPageList, terms, questionRoute?.focusTerms);
   if (!guide) return fallback;
   const toEvidence = ({ page }: (typeof ranked)[number]): Evidence => ({
     pdfPage: page.pdfPage,
