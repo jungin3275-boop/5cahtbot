@@ -51,6 +51,13 @@ function conversationContextFrom(body: Record<string, unknown>): ConversationCon
     question: context.question.slice(0, 500),
     category: typeof context.category === "string" ? context.category.slice(0, 40) : undefined,
     evidenceSections: context.evidenceSections.filter((section): section is string => typeof section === "string").slice(0, 5).map((section) => section.slice(0, 160)),
+    conceptIds: Array.isArray(context.conceptIds)
+      ? context.conceptIds.filter((id): id is string => typeof id === "string").slice(0, 10).map((id) => id.slice(0, 80))
+      : undefined,
+    intent: typeof context.intent === "string" ? context.intent.slice(0, 40) as ConversationContext["intent"] : undefined,
+    subjects: Array.isArray(context.subjects)
+      ? context.subjects.filter((subject): subject is string => typeof subject === "string").slice(0, 5).map((subject) => subject.slice(0, 80))
+      : undefined,
   };
 }
 

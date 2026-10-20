@@ -24,6 +24,7 @@ import educationServiceSafetyHealthFaq from "@/data/education-service-safety-hea
 import disinfectantSpraySafety from "@/data/disinfectant-spray-safety.json";
 import riskAssessmentTiming from "@/data/risk-assessment-timing.json";
 import workersCompensationApplication from "@/data/workers-compensation-application.json";
+import { analyzeQuery, expandQuery, normalizeText as normalize, queryTerms, type QueryAnalysis, type QueryIntent } from "@/lib/query-understanding";
 
 export type Evidence = {
   pdfPage: number;
@@ -45,6 +46,9 @@ export type ConversationContext = {
   question: string;
   category?: string;
   evidenceSections: string[];
+  conceptIds?: string[];
+  intent?: QueryIntent;
+  subjects?: string[];
 };
 
 export type SearchResponse = {
@@ -132,6 +136,46 @@ function directRoute(
 
 function unavailableRoute(test: RegExp, message: string): QuestionRoute {
   return { test, category: "unsupported", preferredSections: [], unavailableMessage: message };
+}
+
+function conceptualRouteFor(analysis: QueryAnalysis): QuestionRoute | undefined {
+  const concepts = new Set(analysis.conceptIds);
+  if (concepts.has("collapse_emergency")) {
+    return directRoute(/(?:)/u, "firstaid", ["뇌심혈관질환 의심 환자 발생 시 대응", "온열질환 증상 확인과 응급조치"],
+      "작업 중 사람이 쓰러지거나 의식이 없으면 즉시 119에 신고한 뒤 의식과 호흡을 확인합니다. 원인을 단정해 물이나 약을 억지로 먹이지 않습니다.",
+      ["호흡이 없거나 비정상이면 119 지시에 따라 심폐소생술과 AED를 시행합니다.", "호흡이 있으면 기도와 낙상 위험을 확인하며 구급대가 올 때까지 곁을 지킵니다."]);
+  }
+  if ((concepts.has("workers_compensation") || concepts.has("industrial_accident")) && analysis.intents.includes("application")) {
+    return directRoute(/(?:)/u, "accident", ["산재보험 요양급여 신청 절차", "산재보험 요양급여 신청 서류", "산업재해 보상 신청"],
+      "업무상 재해로 4일 이상 요양이 필요하면 요양급여신청서와 의료기관의 의학적 소견을 준비해 근로복지공단에 제출합니다.",
+      ["관할 근로복지공단 지역본부·지사에 방문·우편·팩스로 제출하거나 산재보험 의료기관에 제출 대행을 요청할 수 있습니다.", "산재보험 미가입 공무원은 공무원연금 재해보상 절차를 확인합니다."]);
+  }
+  if (concepts.has("industrial_accident") && analysis.intents.includes("procedure")) {
+    return directRoute(/(?:)/u, "accident", ["중대산업재해 최초 발견자의 즉시 조치", "제29조(사고 발생 시 처리 절차)", "산업재해 보고와 재발방지"],
+      "산업재해가 발생하면 먼저 작업과 기계를 멈추고, 부상자 응급구호와 2차 사고 방지 조치를 합니다.",
+      ["119와 학교 관리자에게 즉시 알리고 사고 장소의 출입을 통제합니다.", "초기 조치 후 교육청과 관계기관 보고, 산업재해조사표 제출, 재발방지조치를 이어서 실시합니다."]);
+  }
+  if (concepts.has("warning_label") && /(?:없|훼손|떨어|지워)/u.test(analysis.compact)) {
+    return directRoute(/(?:)/u, "msds", ["붙임4. 화학물질·MSDS Q3"],
+      "MSDS 대상 화학제품 용기에 경고표지가 없거나 훼손되면 필요한 내용을 작성해 용기에 다시 부착해야 합니다.",
+      ["제품명 또는 화학물질 명칭과 그림문자를 표시합니다.", "신호어와 유해·위험 문구, 예방조치 문구를 표시합니다.", "제조사 또는 공급자의 주소와 연락처를 표시합니다."]);
+  }
+  if (concepts.has("work_at_height")) {
+    return directRoute(/(?:)/u, "fall", ["발코니·캐노피 등 2m 이상 고소작업", "사다리를 사용하는 시설관리 작업"],
+      "높은 곳에서 작업할 때에는 안전한 작업발판과 추락방지조치를 먼저 마련하고, 작업 높이와 조건에 맞는 보호구를 사용합니다.",
+      ["가능하면 안전난간이 있는 작업발판을 사용합니다.", "사다리를 사용할 때에는 전도방지장치를 고정하고 2인 1조로 작업합니다.", "2m 이상에서 추락 위험이 남으면 안전대를 적합한 부착점에 체결합니다."]);
+  }
+  if (concepts.has("cleaning_worker") && concepts.has("health_examination")) {
+    return directRoute(/(?:)/u, "health", ["일반·특수·배치 전 건강진단", "산업안전보건법 과제 5. 근로자 건강관리에 관한 사항"],
+      "미화원·청소근로자처럼 상시 근무하는 비사무직 근로자는 일반건강진단을 1년에 1회 실시합니다.",
+      ["유해인자에 노출되는 업무라면 일반건강진단과 별도로 특수건강진단 대상 여부를 확인합니다."]);
+  }
+  if (concepts.has("risk_assessment") && analysis.intents.includes("frequency")) {
+    return directRoute(/(?:)/u, "risk", ["최초·정기·수시 위험성평가 실시 시기", "근로자 참여 위험성평가", "제23조(위험성평가의 실시)"],
+      "정기 위험성평가는 전체 작업을 대상으로 매년 1회 실시합니다.",
+      ["산업재해 발생이나 작업자·설비·방법 변경 시에는 정기평가를 기다리지 않고 수시평가를 실시합니다.", "위험성평가 실시규정은 최초 작성 후 변동사항이 없으면 계속 활용할 수 있습니다."]);
+  }
+  return undefined;
 }
 
 /**
@@ -919,35 +963,17 @@ const indexedPages = sources.flatMap((source) => source.pages.map((page) => {
   };
 }));
 
-const STOP_WORDS = new Set(["학교", "근로자", "어떻게", "무엇", "어떤", "해야", "하나요", "있나요", "관한", "관련", "대해", "경우", "우리", "에서", "위한", "확인"]);
 const LOW_SIGNAL_TERMS = new Set(["산업안전보건", "안전보건", "학교", "교육청", "서울", "지침", "자료", "관련"]);
-
-function normalize(value: string): string {
-  return value.toLowerCase().normalize("NFKC").replace(/[^\p{L}\p{N}]+/gu, " ").trim();
-}
-
-const QUERY_SYNONYMS: Array<{ test: RegExp; terms: string[] }> = [
-  { test: /산재/u, terms: ["산업재해"] },
-  { test: /뭐부터/u, terms: ["무엇부터"] },
-  { test: /라벨/u, terms: ["경고표지"] },
-  { test: /높은곳|높은장소|높은데/u, terms: ["고소작업", "추락", "사다리"] },
-  { test: /건강검진/u, terms: ["건강진단"] },
-  { test: /청소하시는분|청소하는분|청소직원/u, terms: ["청소근로자", "미화원", "비사무직"] },
-  { test: /일용직/u, terms: ["일용근로자"] },
-  { test: /쓰러|실신/u, terms: ["응급처치", "의식", "호흡", "119"] },
-  { test: /얼마나자주|몇년에한번|몇년마다/u, terms: ["주기", "매년"] },
-];
-
-function expandQuery(value: string): string {
-  const normalized = normalize(value);
-  const condensed = normalized.replaceAll(" ", "");
-  const aliases = QUERY_SYNONYMS.flatMap((entry) => entry.test.test(condensed) ? entry.terms : []);
-  return [...new Set([...aliases, normalized])].join(" ");
-}
-
-function queryTerms(question: string): string[] {
-  return [...new Set(expandQuery(question).split(/\s+/).filter((word) => word.length >= 2 && !STOP_WORDS.has(word)).map((word) => word.replace(/(하면|해서|했을|할지|할까|받아야|해야|하나요|인가요|습니까|나요|은|는|이|가|을|를|에|도|로|의|과|와|에서|에는|에게|마다|부터|까지)$/u, "")).filter((word) => word.length >= 2))];
-}
+const INTENT_PAGE_SIGNALS: Partial<Record<QueryIntent, { test: RegExp; bonus: number }>> = {
+  emergency: { test: /(?:119|응급|의식|호흡|심폐소생|aed)/u, bonus: 18 },
+  application: { test: /(?:신청|접수|제출|서류|요양급여)/u, bonus: 10 },
+  retention: { test: /(?:보관|보존|기록)/u, bonus: 10 },
+  frequency: { test: /(?:매년|반기|분기|주기|마다|\d+회)/u, bonus: 8 },
+  duration: { test: /(?:시간|기간|기한|까지)/u, bonus: 7 },
+  eligibility: { test: /(?:대상|해당|포함|제외)/u, bonus: 5 },
+  procedure: { test: /(?:절차|방법|순서|조치|대응)/u, bonus: 4 },
+  location: { test: /(?:장소|위치|기관|부서)/u, bonus: 3 },
+};
 
 const OUT_OF_SCOPE_RULES = [
   { test: /(점심|저녁|메뉴|맛집|요리).*?(추천|골라|알려)/u, label: "식사 메뉴 추천" },
@@ -963,6 +989,8 @@ function outOfScopeNotice(question: string): string | undefined {
 }
 
 function detectCategory(question: string): string | undefined {
+  const conceptCategory = analyzeQuery(question).primaryCategory;
+  if (conceptCategory) return conceptCategory;
   const condensed = expandQuery(question).replaceAll(" ", "");
   let best: { category: string; length: number } | undefined;
   for (const [category, terms] of Object.entries(CATEGORY_TERMS)) {
@@ -1127,34 +1155,39 @@ function guideFromEvidence(pages: Array<{ text: string; isOcr: boolean }>, terms
 
 export function searchManual(question: string, previousContext?: ConversationContext): SearchResponse {
   const previousQuestion = previousContext?.question;
-  const normalizedQuestion = expandQuery(question).replaceAll(" ", "");
-  const normalizedPreviousQuestion = previousQuestion ? expandQuery(previousQuestion).replaceAll(" ", "") : "";
-  const contextualRoute: QuestionRoute | undefined = previousContext?.category === "accident" && /(?:신청.*서류|서류.*신청|무슨서류|필요서류)/u.test(normalizedQuestion)
-    ? {
-        test: /(?:)/u,
-        category: "accident",
-        preferredSections: ["산재보험 요양급여 신청 서류", "산재보험 요양급여 신청 절차", "산업재해 보상 신청"],
-        focusTerms: ["요양급여신청서", "요양급여신청 소견서"],
-      }
-    : previousContext?.category === "education"
-      && /(?:일용직|일용근로자)/u.test(normalizedQuestion)
+  const analysis = analyzeQuery(question);
+  const previousAnalysis = previousQuestion ? analyzeQuery(previousQuestion) : undefined;
+  const normalizedQuestion = analysis.expandedText.replaceAll(" ", "");
+  const normalizedPreviousQuestion = previousAnalysis?.expandedText.replaceAll(" ", "") ?? "";
+  const previousCategory = previousContext?.category ?? previousAnalysis?.primaryCategory;
+  const contextualRoute: QuestionRoute | undefined = previousCategory === "accident"
+    && analysis.intents.includes("application")
+    && /(?:신청.*서류|서류.*신청|무슨서류|필요(?:한)?서류)/u.test(normalizedQuestion)
+    ? directRoute(/(?:)/u, "accident", ["산재보험 요양급여 신청 서류", "산재보험 요양급여 신청 절차", "산업재해 보상 신청"],
+        "요양급여신청서와 산업재해보상보험 요양급여신청 소견서를 함께 제출합니다.",
+        ["서식은 근로복지공단 홈페이지나 공단 지역본부·지사, 산재보험 의료기관에서 받을 수 있습니다.", "서류는 공단에 방문·우편·팩스로 제출하거나 산재보험 의료기관에 제출 대행을 요청할 수 있습니다."],
+        ["요양급여신청서", "요양급여신청 소견서"])
+    : previousCategory === "education"
+      && analysis.conceptIds.includes("daily_worker")
       && /(?:신규|채용)/u.test(normalizedPreviousQuestion)
       ? directRoute(/(?:)/u, "education", ["계약 형태별 채용 시 교육시간"],
           "일용근로자의 채용 시 안전보건교육은 1시간 이상 실시합니다.",
           ["근로계약기간이 1주일 이하인 기간제근로자도 1시간 이상 교육합니다.", "1주일 초과 1개월 이하인 기간제근로자는 4시간 이상, 1개월 초과 기간제근로자와 그 밖의 근로자는 8시간 이상 교육합니다."])
-      : previousContext?.category === "risk"
-        && /(?:그결과|결과).*(?:보관|보존)|얼마나보관/u.test(normalizedQuestion)
+      : previousCategory === "risk"
+        && analysis.intents.includes("retention")
         ? directRoute(/(?:)/u, "risk", ["근로자 참여 위험성평가", "위험성평가 절차", "제23조(위험성평가의 실시)"],
             "위험성평가 결과와 개선조치 기록은 3년간 보존합니다.",
             ["평가 대상과 위험요인, 위험성 결정 결과, 감소대책을 함께 기록합니다.", "개선조치의 담당자·기한·완료 여부를 연결해 관리합니다."])
     : undefined;
-  const questionRoute = QUESTION_ROUTES.find((route) => route.test.test(normalizedQuestion)) ?? contextualRoute;
-  const currentCategory = detectCategory(question);
+  const explicitRoute = QUESTION_ROUTES.find((route) => route.test.test(normalizedQuestion));
+  const questionRoute = explicitRoute ?? conceptualRouteFor(analysis) ?? contextualRoute;
+  const currentCategory = analysis.primaryCategory ?? detectCategory(question);
   const newEmployeeTrainingQuestion = /(신규채용|채용시|신규.*현업|현업.*신규)/u.test(normalizedQuestion);
+  const inheritPreviousContext = Boolean(previousQuestion && analysis.isFollowUp && !currentCategory);
   const category = questionRoute?.category ?? (newEmployeeTrainingQuestion
     ? "education"
-    : currentCategory ?? (previousQuestion && question.length <= 35 ? previousContext?.category ?? detectCategory(previousQuestion) : undefined));
-  const terms = queryTerms(`${question} ${!currentCategory && category ? previousQuestion ?? "" : ""}`);
+    : currentCategory ?? (inheritPreviousContext ? previousCategory : undefined));
+  const terms = queryTerms(`${question} ${inheritPreviousContext ? previousQuestion ?? "" : ""}`);
   const scopeNotice = outOfScopeNotice(question);
   const supervisorQuestion = category === "supervisor" ? detectSupervisorQuestion(question) : undefined;
   const supervisorDutyQuestion = category === "supervisor" && /(직무|업무|역할|임무)/u.test(normalize(question));
@@ -1226,6 +1259,7 @@ export function searchManual(question: string, previousContext?: ConversationCon
   const ranked = indexedPages.map((page) => {
     const searchTerms = "searchTerms" in page ? page.searchTerms : [];
     const normalized = normalize(`${page.section} ${page.text} ${searchTerms.join(" ")}`);
+    const normalizedCompact = normalized.replaceAll(" ", "");
     const title = normalize(page.section);
     const matched = terms.filter((term) => normalized.includes(term));
     const titleHits = terms.filter((term) => title.includes(term)).length;
@@ -1277,10 +1311,14 @@ export function searchManual(question: string, previousContext?: ConversationCon
               : page.section.includes("산업재해 Q8") ? 90
                 : 0)
       : 0;
+    const intentBonus = Math.max(0, ...analysis.intents.map((intent) => {
+      const signal = INTENT_PAGE_SIGNALS[intent];
+      return signal?.test.test(normalizedCompact) ? signal.bonus : 0;
+    }));
     const routeIndex = questionRoute?.preferredSections.findIndex((section) => page.section.includes(section)) ?? -1;
     const routeBonus = routeIndex >= 0 ? 200 - routeIndex * 30 : 0;
     const contextBonus = previousContext?.evidenceSections.some((section) => page.section.includes(section) || section.includes(page.section)) ? 8 : 0;
-    const score = matched.length * 2 + titleHits * 3 + aliasHits * 5 + (page.category === category ? 12 : 0) + supervisorBonus + supervisorDutyBonus + currentTrainingBonus + contractorActionBonus + contractorCouncilBonus + newEmployeeTrainingBonus + regularTrainingBonus + workerHealthBonus + committeeBonus + accidentResponseBonus + routeBonus + contextBonus;
+    const score = matched.length * 2 + titleHits * 3 + aliasHits * 5 + (page.category === category ? 12 : 0) + intentBonus + supervisorBonus + supervisorDutyBonus + currentTrainingBonus + contractorActionBonus + contractorCouncilBonus + newEmployeeTrainingBonus + regularTrainingBonus + workerHealthBonus + committeeBonus + accidentResponseBonus + routeBonus + contextBonus;
     return { page, score, matched, aliasHits, routeBonus, routeIndex };
   }).filter((entry) => entry.score >= 6)
     .sort((a, b) => b.score - a.score || a.page.pdfPage - b.page.pdfPage);
@@ -1335,6 +1373,9 @@ export function searchManual(question: string, previousContext?: ConversationCon
       question,
       category,
       evidenceSections: selected.map((entry) => entry.page.section),
+      conceptIds: analysis.conceptIds.slice(0, 10),
+      intent: analysis.primaryIntent,
+      subjects: analysis.subjects,
     },
     topic: category === "risk" || category === "msds" || category === "contractor" ? category : undefined,
   };
