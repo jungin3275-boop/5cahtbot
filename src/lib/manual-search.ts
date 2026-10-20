@@ -23,6 +23,7 @@ import workplaceHealthManagement2024 from "@/data/workplace-health-management-20
 import educationServiceSafetyHealthFaq from "@/data/education-service-safety-health-faq.json";
 import disinfectantSpraySafety from "@/data/disinfectant-spray-safety.json";
 import riskAssessmentTiming from "@/data/risk-assessment-timing.json";
+import workersCompensationApplication from "@/data/workers-compensation-application.json";
 
 export type Evidence = {
   pdfPage: number;
@@ -35,183 +36,30 @@ export type Evidence = {
   url?: string;
 };
 
+export type GroundedPoint = {
+  text: string;
+  evidenceIds: number[];
+};
+
+export type ConversationContext = {
+  question: string;
+  category?: string;
+  evidenceSections: string[];
+};
+
 export type SearchResponse = {
   status: "found" | "not_found";
   message: string;
-  keyPoints: string[];
+  keyPoints: GroundedPoint[];
   sourceTitle: string;
   sourceDate: string;
   evidence: Evidence[];
   relatedEvidence?: Evidence[];
+  outOfScopeNotice?: string;
+  context?: ConversationContext;
   topic?: "risk" | "msds" | "contractor";
   answerMode?: "gpt" | "search";
   model?: string;
-};
-
-const CATEGORY_GUIDES: Record<string, { message: string; keyPoints: string[] }> = {
-  inspection: {
-    message: "학교의 자율점검은 분야별 점검표로 위험요인을 반복 확인하고 미흡사항을 개선하는 방식으로 운영합니다.",
-    keyPoints: [
-      "시설관리·청소·급식(조리)·통학차량보조 분야별 점검표를 주 1회 작성하고 월 1회 보고하도록 안내합니다.",
-      "기계·설비의 안전장치 작동 상태와 유지·보수 기록을 확인합니다.",
-      "보호구 지급·착용과 방호장치 사용 상태를 점검합니다.",
-      "조도, 바닥 상태, 통행로 장애물, 낙하물과 산소결핍 가능성 등 작업환경을 확인합니다.",
-    ],
-  },
-  ppe: {
-    message: "보호구는 작업별 위험에 맞는 제품을 개인별로 지급하고, 실제 착용 상태와 기능을 계속 확인해야 합니다.",
-    keyPoints: [
-      "개인보호구는 개인별로 지급하고 지급대장에 각 근로자가 서명합니다.",
-      "급식작업에는 방수앞치마, 미끄럼방지 장화, 베임방지장갑 등 작업에 맞는 보호구를 확인합니다.",
-      "보호 기능이 사라졌거나 신체에 맞지 않는 보호구는 교체합니다.",
-      "보호구를 지급하는 데 그치지 않고 미착용 상태로 작업하지 않도록 교육·지도합니다.",
-    ],
-  },
-  musculoskeletal: {
-    message: "반복동작·무리한 힘·부적절한 자세가 있는 작업은 유해요인조사와 작업환경 개선을 함께 진행해야 합니다.",
-    keyPoints: [
-      "근골격계부담작업 유해요인조사는 3년 주기로 실시하도록 안내합니다.",
-      "조사 결과에 따라 작업환경 개선계획을 작성하고 근로자 교육을 실시합니다.",
-      "식판·조리기구 등은 운반대차를 이용하고 인력 운반 시 소량으로 나누어 옮깁니다.",
-      "산업재해로 근골격계질환이 인정된 작업은 수시 유해요인조사 대상 여부를 확인합니다.",
-    ],
-  },
-  slip: {
-    message: "출입문 턱·바닥 경사·움직이는 소독판이 연속으로 겹치면 넘어짐 사고로 이어질 수 있어 동선 전체를 개선해야 합니다.",
-    keyPoints: [
-      "출입문 턱과 바닥 단차를 제거하거나 실리콘·미장 등으로 완만하게 처리합니다.",
-      "움직이는 소독판 패드와 경사로 발판은 고정하고 미끄럼방지 조치를 합니다.",
-      "타일 바닥을 평탄하게 보수하고 위험 단차에는 식별 가능한 경고표지를 부착합니다.",
-      "가능하면 휴게실에서 외부로 바로 나갈 수 있는 별도 동선을 검토합니다.",
-    ],
-  },
-  burn: {
-    message: "열탕소독 작업은 뜨거운 물과 무거운 소쿠리를 동시에 다루므로 작업방법·인원·보호구를 함께 바꿔야 합니다.",
-    keyPoints: [
-      "소쿠리를 들어 올리기 전에 회전솥의 뜨거운 물을 먼저 배수합니다.",
-      "고온·중량물 취급은 2인 1조로 작업합니다.",
-      "방수앞치마가 발등까지 덮도록 착용하고 장화와 앞치마 사이로 물이 들어갈 틈이 없는지 확인합니다.",
-      "작업 전 TBM에서 당일 열탕소독 절차와 보호구 상태를 함께 확인합니다.",
-    ],
-  },
-  ventilation: {
-    message: "보일러실은 가스 누출 시 좁은 공간에 축적되지 않도록 환기설비의 상시 작동성과 접근성을 확보해야 합니다.",
-    keyPoints: [
-      "환기팬 스위치와 흡·배기구 주변의 적재물을 제거합니다.",
-      "퇴근 후에도 누출 상황에 대응할 수 있도록 가스감지기와 환기팬 연동을 검토합니다.",
-      "배관과 접속부의 결함 및 누출 여부를 정기적으로 점검합니다.",
-      "환기설비가 실제로 작동하는지 점검 기록을 남깁니다.",
-    ],
-  },
-  electrical: {
-    message: "노출된 충전부와 접지되지 않은 콘센트는 감전·누전·화재 위험이 있어 사용 전 방호조치가 필요합니다.",
-    keyPoints: [
-      "차단기 충전부는 절연덮개나 적절한 외함으로 신체 접촉을 방지합니다.",
-      "습기와 먼지가 충전부에 쌓이지 않도록 벽부 콘센트 등 적합한 설비로 개선합니다.",
-      "압축기 등 전기 사용부하가 큰 기기의 콘센트에는 접지를 설치합니다.",
-      "전선 피복·절연 상태와 누전차단기 작동 여부를 함께 점검합니다.",
-    ],
-  },
-  fall: {
-    message: "옥상·계단·현수막 게시대 작업은 임시 발판 대신 고정된 통로와 추락방지 시설을 먼저 마련해야 합니다.",
-    keyPoints: [
-      "옥상 덕트와 배관을 넘는 통로에는 고정식 안전계단과 미끄럼방지 표면을 설치합니다.",
-      "옥상 가장자리에는 기준에 맞는 안전난간을 설치합니다.",
-      "사다리 작업은 지반 상태와 보조다리 고정을 확인하고 강풍·우천 시 작업을 통제합니다.",
-      "현수막 작업 아래의 보행자·차량 통행과 상부 전선 접촉 위험도 함께 통제합니다.",
-    ],
-  },
-  education: {
-    message: "안전보건교육은 교육 대상과 시점에 따라 필요한 시간과 방법이 달라집니다.",
-    keyPoints: [
-      "현업업무종사자(조리·시설관리·청소 등)는 채용 시 8시간 교육을 실시합니다.",
-      "일용근로자는 근로기간이 1주일 이하이면 1시간, 1주일 초과 1개월 이하이면 4시간으로 안내되어 있습니다.",
-      "교육은 현장·온라인·집체 방식으로 실시할 수 있습니다.",
-      "현업업무종사자의 정기교육은 반기별 12시간입니다.",
-      "교육기록과 수료증의 보존기간은 기록 종류와 적용 근거를 확인해야 하며, 관리감독자 교육 이수자료는 교육일로부터 5년 보존이 권장됩니다.",
-    ],
-  },
-  accident: {
-    message: "산업재해 발생 시에는 응급조치와 보고를 진행하고, 조사표 제출과 재발방지 조치를 이어서 실시하도록 안내합니다.",
-    keyPoints: [
-      "3일 이상 휴업재해는 재해발생일을 제외하고 휴무일·공휴일을 포함한 연속 3일 이상 휴업을 기준으로 안내합니다.",
-      "사고 발생 즉시 관계 기관에 유선 보고하고, 산업재해조사표는 발생일 기준 1개월 이내 제출합니다.",
-      "재발방지계획을 수립·시행하고 산업재해조사표와 함께 3년간 보존합니다.",
-      "사고가 발생한 작업에는 수시 위험성평가를 실시하며, 근골격계질환은 해당 공정의 수시 유해요인조사를 검토합니다.",
-    ],
-  },
-  msds: {
-    message: "세제도 제품의 성분과 사용 용도에 따라 MSDS 관리 대상이 될 수 있으므로 제품 자료를 먼저 확인해야 합니다.",
-    keyPoints: [
-      "사용 중인 화학제품 목록을 정리하고 공급처 또는 제조회사에서 MSDS를 확보합니다.",
-      "매뉴얼은 세제·락스·윤활유·락카·휘발유 등을 MSDS 확인 예시로 제시합니다.",
-      "MSDS 15번 항목의 법적 규제현황과 3번 항목의 구성성분·함유량을 확인합니다.",
-      "대상 제품은 근로자가 쉽게 접근할 수 있는 장소에 MSDS를 게시·비치하고, 용기 경고표지와 작업공정별 관리요령을 마련해 교육합니다.",
-    ],
-  },
-  contractor: {
-    message: "도급·공사 계약 전에는 안전보건 평가기준과 제출서류를 제시하고, 금액과 규모에 따른 추가 조치를 확인하도록 안내합니다.",
-    keyPoints: [
-      "공고 시 안전보건수준 평가기준을 제시하고 안전보건관리 활동계획서, 체크리스트, 준수 서약서 등을 제출받습니다.",
-      "총 공사금액 2천만원 이상은 산업안전보건관리비 계상 여부를 확인합니다.",
-      "50억원 이상 건설공사는 단계별 안전보건대장을 작성하고 전문가를 통해 적정성을 확인합니다.",
-      "공사 종료 후 관리비를 정산하고 업체의 안전보건 이행 수준을 평가해 다음 업체 선정에 반영합니다.",
-    ],
-  },
-  risk: {
-    message: "위험성평가는 위험요인을 찾고 위험수준을 판단한 뒤 감소대책을 실행하고 기록하는 절차로 진행합니다.",
-    keyPoints: [
-      "사전준비 → 유해·위험요인 파악 → 위험성 결정 → 감소대책 수립·실행 → 결과 공유 → 기록·보존 순으로 진행합니다.",
-      "근로자가 위험요인 파악과 평가 과정에 참여해야 합니다.",
-      "최초평가 외에 산업재해 발생, 작업자·설비·방법 변경, 정비·보수 작업 등의 경우 수시평가를 실시합니다.",
-      "정기평가는 매년 1회 실시하고, 평가 및 조치 결과는 3년간 보존합니다.",
-    ],
-  },
-  health: {
-    message: "일반건강진단 주기는 사무직 여부에 따라 다르고, 유해인자 노출 업무는 특수·배치 전 건강진단을 별도로 확인해야 합니다.",
-    keyPoints: [
-      "조리·시설관리·청소·통학차량보조 등 비사무직은 1년에 1회 일반건강진단을 실시합니다.",
-      "교원·지방직 공무원 등 사무직은 2년에 1회 일반건강진단을 실시합니다.",
-      "특수건강진단 대상 유해인자에 노출되는 근로자는 배치 전 건강진단과 특수건강진단 대상 여부를 확인합니다.",
-      "매뉴얼은 특수건강진단을 배치 후 6개월 이내 첫 검진 후 1년마다 실시하도록 안내합니다.",
-    ],
-  },
-  environment: {
-    message: "작업환경측정 대상 여부는 취급 제품의 MSDS와 실제 작업시간·노출조건을 함께 확인해 판단합니다.",
-    keyPoints: [
-      "MSDS 3번 항목에서 작업환경측정 대상 유해인자의 명칭과 함유량을 확인합니다.",
-      "화학적 유해인자는 매뉴얼 기준으로 해당 성분 함량이 1% 이상인 제품인지 확인합니다.",
-      "허용소비량 이하 작업장, 임시작업·단시간작업 등은 제외 조건 해당 여부를 별도로 검토합니다.",
-      "신규 또는 변경 시 30일 이내 측정하고 이후 6개월마다 1회 이상 실시하는 기준을 안내합니다.",
-    ],
-  },
-  heat: {
-    message: "폭염 작업은 체감온도를 확인하고 단계에 따라 작업시간과 휴식시간을 조정해야 합니다.",
-    keyPoints: [
-      "체감온도 31℃ 이상이면 온열질환 예방조치를 시작하고 온도를 주기적으로 확인합니다.",
-      "체감온도 33℃ 이상이면 2시간마다 20분 이상의 휴식을 부여합니다.",
-      "체감온도가 높아지면 옥외작업을 단축하거나 중지하고 민감군을 별도로 보호합니다.",
-      "열사병이 의심되면 즉시 119에 신고하고 시원한 장소로 옮겨 체온을 낮춥니다.",
-    ],
-  },
-  weather: {
-    message: "호우·태풍 전후에는 시설물, 전기설비, 배수로를 점검하고 위험 작업을 중지해야 합니다.",
-    keyPoints: [
-      "기상특보를 확인하고 옥외 적치물과 시설물을 고정하며 배수로를 정비합니다.",
-      "호우·태풍 중에는 옥외작업과 침수·붕괴 위험 장소 출입을 중지합니다.",
-      "침수 우려 구역의 전원을 차단하고 젖은 손으로 전기설비를 만지지 않습니다.",
-      "복구 작업 전 구조물과 전기설비의 안전 상태를 확인하고 보호구를 착용합니다.",
-    ],
-  },
-  struck: {
-    message: "물체에 맞거나 운반물에 부딪히는 사고는 적재·운반 방법과 통로 상태를 함께 개선해야 합니다.",
-    keyPoints: [
-      "운반물은 떨어지지 않도록 고정하고 과도하게 높이 쌓지 않습니다.",
-      "무거운 급식 운반카트는 2인 1조로 이동하고 전방 시야를 확보합니다.",
-      "트렌치와 단차는 덮개와 표시로 관리하고 통로에 장애물을 두지 않습니다.",
-      "사고가 발생하면 추가 낙하 위험을 차단하고 부상자를 안전하게 응급조치합니다.",
-    ],
-  },
 };
 
 const CATEGORY_TERMS: Record<string, string[]> = {
@@ -277,8 +125,9 @@ function directRoute(
   preferredSections: string[],
   message: string,
   keyPoints: string[],
+  focusTerms: string[] = [],
 ): QuestionRoute {
-  return { test, category, preferredSections, guide: { message, keyPoints } };
+  return { test, category, preferredSections, focusTerms, guide: { message, keyPoints } };
 }
 
 function unavailableRoute(test: RegExp, message: string): QuestionRoute {
@@ -292,6 +141,10 @@ function unavailableRoute(test: RegExp, message: string): QuestionRoute {
 const QUESTION_ROUTES: QuestionRoute[] = [
   // 1·2차 비교 점검에서 질문별 직답이 약했던 항목을 먼저 처리한다.
   // 새 질문 100개 점검: 근거가 있는 질문은 직답하고, 자료가 없는 주제는 오탐을 막는다.
+  directRoute(/(?:산재|산업재해).*(?:신청|요양급여|보상)|(?:요양급여|산재보험).*(?:신청|절차|서류)/u, "accident", ["산재보험 요양급여 신청 절차", "산재보험 요양급여 신청 서류", "산업재해 보상 신청"],
+    "업무상 재해로 4일 이상 요양이 필요하면 요양급여신청서와 의료기관의 의학적 소견을 준비해 근로복지공단에 제출합니다.",
+    ["관할 근로복지공단 지역본부·지사에 방문·우편·팩스로 제출하거나 산재보험 의료기관에 제출 대행을 요청할 수 있습니다.", "요양급여신청서와 요양급여신청 소견서를 함께 준비합니다.", "산재보험 미가입 공무원은 공무원연금 재해보상 절차를 확인합니다."],
+    ["4일 이상", "요양급여신청서", "의학적 소견"]),
   directRoute(/안전보건관리책임자.*학교.*누가/u, "organization", ["학교 산업안전보건위원회 설치 대상 판단", "제6조(안전보건관리책임자의 선임)", "산업안전보건법 과제 2"],
     "학교마다 교장이 자동으로 안전보건관리책임자가 되는 것은 아닙니다. 교육서비스업은 사업장 단위와 현업업무종사자 수를 먼저 확인해야 하며, 서울시교육청 규정상 교육청의 안전보건관리책임자는 부교육감입니다.",
     ["교육서비스업의 안전보건관리책임자·안전보건관리규정 적용 기준은 해당 사업장 소속 현업업무종사자 100명 이상입니다.", "학교가 독립된 사업장인지는 인사·노무·회계와 안전보건 의사결정의 독립성을 종합해 판단합니다.", "개별 학교의 지정 여부는 교육청 규정과 해당 학교의 조직·인원 현황으로 확인해야 합니다."]),
@@ -708,7 +561,7 @@ const QUESTION_ROUTES: QuestionRoute[] = [
 
   // 안전보건교육
   { test: /(?:신규채용|채용시).*(?:몇시간|교육시간)|하루만.*일용|계약기간.*1주일/u, category: "education", preferredSections: ["계약 형태별 채용 시 교육시간"] },
-  { test: /현업업무종사자.*정기교육.*(?:1년|몇시간|시간)/u, category: "education", preferredSections: ["현업업무종사자·관리감독자 정기교육 시간"] },
+  { test: /현업업무종사자.*정기교육.*(?:1년|몇시간|시간)/u, category: "education", preferredSections: ["근로자 정기·채용 시 교육", "현업업무종사자·관리감독자 정기교육 시간", "제33조(기록물의 보존)"], focusTerms: ["반기별 12시간", "현장", "온라인", "집체", "3년간 보존"] },
   { test: /관리감독자.*(?:매년|연간).*(?:몇시간|교육)/u, category: "supervisor", preferredSections: ["Q7. 관리감독자 정기교육은 매년 이수하여야 하는지", "Q1. 법정 교육시간 및 교육내용", "2026년 관리감독자 정기 안전보건교육 시간 구성"] },
   { test: /관리감독자교육.*집합교육.*(?:시간|얼마)/u, category: "supervisor", preferredSections: ["Q2. 관리감독자 정기교육에 대한 집합교육 의무 비율", "현업업무종사자·관리감독자 정기교육 시간"] },
   { test: /온라인.*교육.*인정/u, category: "education", preferredSections: ["현업업무종사자·관리감독자 정기교육 시간"] },
@@ -1028,6 +881,14 @@ const sources = [
     extraction: riskAssessmentTiming.extraction,
     pages: riskAssessmentTiming.pages,
   },
+  {
+    title: workersCompensationApplication.sourceTitle,
+    publisher: workersCompensationApplication.sourcePublisher,
+    date: workersCompensationApplication.sourceDate,
+    url: workersCompensationApplication.sourceUrl,
+    extraction: workersCompensationApplication.extraction,
+    pages: workersCompensationApplication.pages,
+  },
 ];
 
 const indexedPages = sources.flatMap((source) => source.pages.map((page) => {
@@ -1058,6 +919,19 @@ function normalize(value: string): string {
 
 function queryTerms(question: string): string[] {
   return normalize(question).split(/\s+/).filter((word) => word.length >= 2 && !STOP_WORDS.has(word)).map((word) => word.replace(/(하면|해서|했을|할지|할까|받아야|해야|하나요|인가요|습니까|나요|은|는|이|가|을|를|에|도|로|의|과|와|에서|에는|에게|마다|부터|까지)$/u, "")).filter((word) => word.length >= 2);
+}
+
+const OUT_OF_SCOPE_RULES = [
+  { test: /(점심|저녁|메뉴|맛집|요리).*?(추천|골라|알려)/u, label: "식사 메뉴 추천" },
+  { test: /(날씨|기온|비가|눈이).*?(알려|예보|어때)/u, label: "날씨 안내" },
+  { test: /(주식|주가|코인|투자).*?(추천|전망|매수)/u, label: "투자 안내" },
+  { test: /(여행|숙소|호텔|관광지).*?(추천|예약|알려)/u, label: "여행 안내" },
+];
+
+function outOfScopeNotice(question: string): string | undefined {
+  const labels = OUT_OF_SCOPE_RULES.filter((rule) => rule.test.test(question)).map((rule) => rule.label);
+  if (!labels.length) return undefined;
+  return `${[...new Set(labels)].join("·")} 요청은 학교 산업안전보건 업무 범위 밖이라 답변하지 않았습니다.`;
 }
 
 function detectCategory(question: string): string | undefined {
@@ -1155,8 +1029,12 @@ function excerptFor(text: string, isOcr: boolean): string {
   return paragraphs.join("\n\n");
 }
 
-function guideFromEvidence(pages: Array<{ text: string; isOcr: boolean }>, terms: string[], focusTerms: string[] = []): { message: string; keyPoints: string[] } | undefined {
-  const statements = pages.flatMap((page) => {
+function citedStatement(statement: string, evidenceId: number): string {
+  return `${statement.replace(/[.。]\s*$/u, "").trim()} [근거 ${evidenceId}].`;
+}
+
+function guideFromEvidence(pages: Array<{ text: string; isOcr: boolean }>, terms: string[], focusTerms: string[] = []): { message: string; keyPoints: GroundedPoint[] } | undefined {
+  const statements = pages.flatMap((page, evidenceIndex) => {
     let text = excerptFor(page.text, page.isOcr);
     const answerAt = text.indexOf("답변:");
     if (answerAt >= 0) text = text.slice(answerAt + "답변:".length);
@@ -1165,7 +1043,7 @@ function guideFromEvidence(pages: Array<{ text: string; isOcr: boolean }>, terms
       .map((statement) => statement.replace(/^[○◦▪■□·\-]+\s*/u, "").replace(/\s+/g, " ").trim())
       .filter((statement) => statement.length >= 8)
       .filter((statement) => !/[?？]$/u.test(statement) && !/^Q\d+[.)]/iu.test(statement))
-      .filter((statement, index, all) => all.indexOf(statement) === index);
+      .map((statement) => ({ statement, evidenceId: evidenceIndex + 1 }));
   });
 
   if (!statements.length) return undefined;
@@ -1177,30 +1055,41 @@ function guideFromEvidence(pages: Array<{ text: string; isOcr: boolean }>, terms
     return [term];
   });
   const ordered = statements
-    .map((statement, index) => {
-      const normalizedStatement = normalize(statement).replaceAll(" ", "");
+    .filter((entry, index, all) => all.findIndex((candidate) => candidate.statement === entry.statement) === index)
+    .map((entry, index) => {
+      const normalizedStatement = normalize(entry.statement).replaceAll(" ", "");
       const score = expandedTerms.filter((term) => normalizedStatement.includes(normalize(term).replaceAll(" ", ""))).length
         + focusTerms.filter((term) => normalizedStatement.includes(normalize(term).replaceAll(" ", ""))).length * 5;
-      return { statement, index, score };
+      return { ...entry, index, score };
     })
     .sort((a, b) => b.score - a.score || a.index - b.index);
-  const message = ordered[0].statement;
-  const additional = ordered.slice(1, 5).map((entry) => entry.statement);
+  const message = citedStatement(ordered[0].statement, ordered[0].evidenceId);
+  const additional = ordered.slice(1, 5).map((entry) => ({ text: entry.statement, evidenceIds: [entry.evidenceId] }));
   return {
     message,
-    keyPoints: additional.length ? additional : [message],
+    keyPoints: additional,
   };
 }
 
-export function searchManual(question: string, previousQuestion?: string): SearchResponse {
+export function searchManual(question: string, previousContext?: ConversationContext): SearchResponse {
+  const previousQuestion = previousContext?.question;
   const normalizedQuestion = normalize(question).replaceAll(" ", "");
-  const questionRoute = QUESTION_ROUTES.find((route) => route.test.test(normalizedQuestion));
+  const contextualRoute: QuestionRoute | undefined = previousContext?.category === "accident" && /(?:신청.*서류|서류.*신청|무슨서류|필요서류)/u.test(normalizedQuestion)
+    ? {
+        test: /(?:)/u,
+        category: "accident",
+        preferredSections: ["산재보험 요양급여 신청 서류", "산재보험 요양급여 신청 절차", "산업재해 보상 신청"],
+        focusTerms: ["요양급여신청서", "요양급여신청 소견서"],
+      }
+    : undefined;
+  const questionRoute = QUESTION_ROUTES.find((route) => route.test.test(normalizedQuestion)) ?? contextualRoute;
   const currentCategory = detectCategory(question);
   const newEmployeeTrainingQuestion = /(신규채용|채용시|신규.*현업|현업.*신규)/u.test(normalizedQuestion);
   const category = questionRoute?.category ?? (newEmployeeTrainingQuestion
     ? "education"
-    : currentCategory ?? (previousQuestion && question.length <= 35 ? detectCategory(previousQuestion) : undefined));
+    : currentCategory ?? (previousQuestion && question.length <= 35 ? previousContext?.category ?? detectCategory(previousQuestion) : undefined));
   const terms = queryTerms(`${question} ${!currentCategory && category ? previousQuestion ?? "" : ""}`);
+  const scopeNotice = outOfScopeNotice(question);
   const supervisorQuestion = category === "supervisor" ? detectSupervisorQuestion(question) : undefined;
   const supervisorDutyQuestion = category === "supervisor" && /(직무|업무|역할|임무)/u.test(normalize(question));
   const newEmployeeTrainingIntent = /(몇시간|교육시간|계약기간|일용|기간제)/u.test(normalizedQuestion)
@@ -1252,15 +1141,20 @@ export function searchManual(question: string, previousQuestion?: string): Searc
           : "general";
   const fallback: SearchResponse = {
     status: "not_found",
-    message: "이 질문과 충분히 관련된 매뉴얼 페이지를 찾지 못했습니다. 질문에 업무 분야나 핵심 용어를 더 넣어 주세요. 현재 자료만으로 답을 단정할 수 없습니다.",
+    message: "등록된 근거자료에서 질문에 직접 답할 내용을 찾지 못했습니다. 현재 자료만으로 답을 단정하지 않으며, 학교 또는 교육청 산업안전보건 담당 부서와 관계기관의 공식 안내를 확인해 주세요.",
     keyPoints: [],
     sourceTitle: manual.sourceTitle,
     sourceDate: manual.sourceDate,
     evidence: [],
+    outOfScopeNotice: scopeNotice,
   };
   if (questionRoute?.unavailableMessage) {
     return { ...fallback, message: questionRoute.unavailableMessage };
   }
+  if (scopeNotice && !questionRoute && !currentCategory && !category) {
+    return { ...fallback, message: "입력한 내용에서 학교 산업안전보건 업무 질문을 찾지 못했습니다. 산업안전보건과 관련된 질문을 입력해 주세요." };
+  }
+  if (!questionRoute && !category) return fallback;
   if (!terms.length && !category) return fallback;
 
   const ranked = indexedPages.map((page) => {
@@ -1319,15 +1213,20 @@ export function searchManual(question: string, previousQuestion?: string): Searc
       : 0;
     const routeIndex = questionRoute?.preferredSections.findIndex((section) => page.section.includes(section)) ?? -1;
     const routeBonus = routeIndex >= 0 ? 200 - routeIndex * 30 : 0;
-    const score = matched.length * 2 + titleHits * 3 + aliasHits * 5 + (page.category === category ? 12 : 0) + supervisorBonus + supervisorDutyBonus + currentTrainingBonus + contractorActionBonus + contractorCouncilBonus + newEmployeeTrainingBonus + regularTrainingBonus + workerHealthBonus + committeeBonus + accidentResponseBonus + routeBonus;
-    return { page, score, matched, routeBonus };
-  }).filter((entry) => entry.score >= 4)
+    const contextBonus = previousContext?.evidenceSections.some((section) => page.section.includes(section) || section.includes(page.section)) ? 8 : 0;
+    const score = matched.length * 2 + titleHits * 3 + aliasHits * 5 + (page.category === category ? 12 : 0) + supervisorBonus + supervisorDutyBonus + currentTrainingBonus + contractorActionBonus + contractorCouncilBonus + newEmployeeTrainingBonus + regularTrainingBonus + workerHealthBonus + committeeBonus + accidentResponseBonus + routeBonus + contextBonus;
+    return { page, score, matched, aliasHits, routeBonus, routeIndex };
+  }).filter((entry) => entry.score >= 6)
     .sort((a, b) => b.score - a.score || a.page.pdfPage - b.page.pdfPage);
 
   if (!ranked.length) return fallback;
   const best = ranked[0];
-  if (!category && best.matched.length < 2 && best.score < 6) return fallback;
-  const routed = questionRoute ? ranked.filter((entry) => entry.routeBonus > 0) : [];
+  const requiredLexicalHits = Math.min(2, Math.max(1, terms.length));
+  const lexicalHits = best.matched.length + Math.min(best.aliasHits, 2);
+  if (!questionRoute && (best.score < 8 || lexicalHits < requiredLexicalHits)) return fallback;
+  const routed = questionRoute
+    ? ranked.filter((entry) => entry.routeBonus > 0).sort((a, b) => a.routeIndex - b.routeIndex || b.score - a.score)
+    : [];
   if (questionRoute && !routed.length) {
     return {
       ...fallback,
@@ -1341,9 +1240,8 @@ export function searchManual(question: string, previousQuestion?: string): Searc
     .filter((entry) => !selectedPages.has(entry.page))
     .filter((entry) => entry.score >= relatedThreshold && (!category || entry.page.category === category))
     .slice(0, 9);
-  const evidenceGuide = questionRoute?.guide
-    ?? (questionRoute ? guideFromEvidence(selected.map((entry) => entry.page), terms, questionRoute.focusTerms) : undefined);
-  const guide = evidenceGuide ?? (category ? CATEGORY_GUIDES[category] : undefined);
+  const guide = guideFromEvidence(selected.map((entry) => entry.page), terms, questionRoute?.focusTerms);
+  if (!guide) return fallback;
   const toEvidence = ({ page }: (typeof ranked)[number]): Evidence => ({
     pdfPage: page.pdfPage,
     referenceLabel: page.referenceLabel,
@@ -1362,6 +1260,12 @@ export function searchManual(question: string, previousQuestion?: string): Searc
     sourceDate: manual.sourceDate,
     evidence: selected.map(toEvidence),
     relatedEvidence: related.map(toEvidence),
+    outOfScopeNotice: scopeNotice,
+    context: {
+      question,
+      category,
+      evidenceSections: selected.map((entry) => entry.page.section),
+    },
     topic: category === "risk" || category === "msds" || category === "contractor" ? category : undefined,
   };
 }
