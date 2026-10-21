@@ -163,6 +163,16 @@ function conceptualRouteFor(analysis: QueryAnalysis): QuestionRoute | undefined 
       "머리를 다친 사람의 의식과 호흡을 확인하고 즉시 119에 신고합니다.",
       ["현장에 추가 위험이 없다면 구조대가 도착할 때까지 환자를 함부로 움직이지 않습니다.", "목뼈 손상이 의심되면 머리와 목이 움직이지 않도록 유지합니다."]);
   }
+  if (concepts.has("fracture_emergency")) {
+    return directRoute(/(?:)/u, "firstaid", ["추락·넘어짐·교통사고 시 부상자 고정"],
+      "골절이 의심되면 부상자의 의식과 호흡을 확인하고 119에 신고합니다.",
+      ["현장에 추가 위험이 없다면 다친 부위를 완전히 고정하기 전에 환자를 함부로 움직이지 않습니다.", "부목을 사용할 때에는 다친 부위의 위·아래 관절을 함께 포함해 고정합니다."]);
+  }
+  if (concepts.has("major_bleeding_emergency")) {
+    return directRoute(/(?:)/u, "firstaid", ["끼임·베임·절단사고 응급조치"],
+      "피가 많이 나면 현장이 안전한지 확인한 뒤 깨끗한 거즈나 천으로 상처를 직접 압박해 지혈하고 119에 신고합니다.",
+      ["구급대가 도착할 때까지 압박을 유지하고 환자를 안정시켜 보온합니다."]);
+  }
   if (concepts.has("gas_inhalation_emergency")) {
     return directRoute(/(?:)/u, "firstaid", ["가스 누출·중독사고의 대피와 응급조치"],
       "가스 누출이나 중독이 의심되면 작업을 중지하고 주변 사람을 안전한 장소로 대피시킨 뒤 119에 신고합니다.",
