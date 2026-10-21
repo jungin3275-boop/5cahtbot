@@ -3,8 +3,8 @@
     "id": "industrial_accident",
     "category": "accident",
     "canonical": "산업재해",
-    "aliases": ["산재", "업무상 재해", "업무상재해"],
-    "related": ["재해 발생", "사고 발생", "일하다 다침"],
+    "aliases": ["산재", "업무상 재해", "업무상재해", "일하다 다쳤", "근무 중 다쳤", "작업 중 다쳤", "넘어져서 다쳤"],
+    "related": ["재해 발생", "사고 발생", "일하다 다침", "업무 중 부상"],
     "excluded": ["학교안전사고", "학생사고"]
   },
   {
@@ -18,8 +18,36 @@
     "id": "collapse_emergency",
     "category": "firstaid",
     "canonical": "실신 응급처치",
-    "aliases": ["쓰러", "실신", "사람이 쓰러짐", "근로자가 쓰러짐", "작업자가 쓰러짐", "정신을 잃음", "의식이 없", "반응이 없", "호흡이 없"],
+    "aliases": ["쓰러", "실신", "사람이 쓰러짐", "근로자가 쓰러짐", "작업자가 쓰러짐", "정신을 잃", "의식을 잃", "기절", "의식이 없", "반응이 없", "호흡이 없"],
     "related": ["호흡 없음", "심정지", "119", "심폐소생술", "AED"]
+  },
+  {
+    "id": "electric_shock_emergency",
+    "category": "firstaid",
+    "canonical": "감전 응급조치",
+    "aliases": ["감전됐", "감전된", "감전되었", "감전 사고", "전기에 감전", "전기 사고"],
+    "related": ["전원 차단", "119", "심폐소생술", "AED"]
+  },
+  {
+    "id": "cut_entrapment_emergency",
+    "category": "firstaid",
+    "canonical": "끼임 베임 절단사고 응급조치",
+    "aliases": ["손가락이 끼", "손이 끼", "기계에 손", "기계에 끼", "끼였", "칼에 베", "손을 베", "절단됐", "잘렸"],
+    "related": ["지혈", "절단 부위", "119"]
+  },
+  {
+    "id": "chemical_ingestion_emergency",
+    "category": "firstaid",
+    "canonical": "화학물질 섭취 사고",
+    "aliases": ["화학물질을 마셨", "화학물질을 삼켰", "세제를 마셨", "세제를 삼켰", "소독제를 마셨"],
+    "related": ["중독", "119", "제품 용기", "MSDS"]
+  },
+  {
+    "id": "fire_emergency",
+    "category": "firstaid",
+    "canonical": "화재 발생 대피",
+    "aliases": ["불이 났", "불났", "화재가 났", "화재 발생"],
+    "related": ["대피", "119", "소방서", "작업 중지"]
   },
   {
     "id": "msds",
@@ -54,6 +82,19 @@
     "canonical": "청소근로자",
     "aliases": ["미화원", "청소하시는 분", "청소하는 분", "청소직원", "청소 노동자"],
     "related": ["비사무직", "환경미화"]
+  },
+  {
+    "id": "food_service_worker",
+    "canonical": "급식종사자",
+    "aliases": ["조리사", "조리실무사", "급식실 직원", "급식 근로자"],
+    "related": ["비사무직", "학교 급식실"]
+  },
+  {
+    "id": "new_employee",
+    "category": "education",
+    "canonical": "신규 채용 근로자",
+    "aliases": ["신규 입사자", "신규 직원", "계약직", "첫 출근", "처음 출근"],
+    "related": ["채용 시 교육", "직무 배치 전"]
   },
   {
     "id": "daily_worker",

@@ -8,6 +8,36 @@ type OpenAIResponse = {
   }>;
 };
 
+const MAX_REQUEST_BYTES = 64 * 1024;
+const RATE_LIMIT_WINDOW_MS = 60_000;
+const RATE_LIMIT_MAX_REQUESTS = 60;
+const VALID_INTENTS = new Set<NonNullable<ConversationContext["intent"]>>([
+  "emergency", "application", "procedure", "frequency", "duration", "retention", "eligibility", "comparison", "location", "general",
+]);
+const requestBuckets = new Map<string, { startedAt: number; count: number }>();
+
+function clientKey(request: Request): string {
+  const forwarded = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim();
+  return forwarded || request.headers.get("x-real-ip")?.trim() || "local";
+}
+
+function isRateLimited(request: Request): boolean {
+  const now = Date.now();
+  const key = clientKey(request);
+  const bucket = requestBuckets.get(key);
+  if (!bucket || now - bucket.startedAt >= RATE_LIMIT_WINDOW_MS) {
+    requestBuckets.set(key, { startedAt: now, count: 1 });
+    return false;
+  }
+  bucket.count += 1;
+  if (requestBuckets.size > 1_000) {
+    for (const [bucketKey, value] of requestBuckets) {
+      if (now - value.startedAt >= RATE_LIMIT_WINDOW_MS) requestBuckets.delete(bucketKey);
+    }
+  }
+  return bucket.count > RATE_LIMIT_MAX_REQUESTS;
+}
+
 function responseText(response: OpenAIResponse): string | undefined {
   const direct = response.output_text?.trim();
   if (direct) return direct;
@@ -54,7 +84,9 @@ function conversationContextFrom(body: Record<string, unknown>): ConversationCon
     conceptIds: Array.isArray(context.conceptIds)
       ? context.conceptIds.filter((id): id is string => typeof id === "string").slice(0, 10).map((id) => id.slice(0, 80))
       : undefined,
-    intent: typeof context.intent === "string" ? context.intent.slice(0, 40) as ConversationContext["intent"] : undefined,
+    intent: typeof context.intent === "string" && VALID_INTENTS.has(context.intent as NonNullable<ConversationContext["intent"]>)
+      ? context.intent as ConversationContext["intent"]
+      : undefined,
     subjects: Array.isArray(context.subjects)
       ? context.subjects.filter((subject): subject is string => typeof subject === "string").slice(0, 5).map((subject) => subject.slice(0, 80))
       : undefined,
@@ -126,9 +158,23 @@ async function createGroundedAnswer(
 }
 
 export async function POST(request: Request) {
+  if (isRateLimited(request)) {
+    return NextResponse.json(
+      { error: "요청이 많습니다. 잠시 후 다시 시도해 주세요." },
+      { status: 429, headers: { "Retry-After": "60" } },
+    );
+  }
+  const declaredLength = Number(request.headers.get("content-length") ?? 0);
+  if (Number.isFinite(declaredLength) && declaredLength > MAX_REQUEST_BYTES) {
+    return NextResponse.json({ error: "요청 크기가 너무 큽니다." }, { status: 413 });
+  }
   let body: unknown;
   try {
-    body = await request.json();
+    const rawBody = await request.text();
+    if (new TextEncoder().encode(rawBody).byteLength > MAX_REQUEST_BYTES) {
+      return NextResponse.json({ error: "요청 크기가 너무 큽니다." }, { status: 413 });
+    }
+    body = JSON.parse(rawBody);
   } catch {
     return NextResponse.json({ error: "올바른 JSON 요청이 아닙니다." }, { status: 400 });
   }
