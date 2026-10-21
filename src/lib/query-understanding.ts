@@ -147,4 +147,3 @@ export function expandQuery(value: string): string {
 export function queryTerms(value: string): string[] {
   return analyzeQuery(value).terms;
 }
-
