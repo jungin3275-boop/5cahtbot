@@ -43,10 +43,24 @@
     "related": ["목뼈 손상", "머리와 목 고정"]
   },
   {
+    "id": "fracture_emergency",
+    "category": "firstaid",
+    "canonical": "골절 응급조치",
+    "aliases": ["팔이 부러", "다리가 부러", "손가락이 부러", "뼈가 부러", "골절 같", "골절 의심"],
+    "related": ["부목", "환자 고정"]
+  },
+  {
+    "id": "major_bleeding_emergency",
+    "category": "firstaid",
+    "canonical": "다량 출혈 응급조치",
+    "aliases": ["피가 많이 나", "피가 멈추지", "출혈이 심", "출혈이 많", "많은 출혈", "다량 출혈"],
+    "related": ["압박 지혈", "직접 압박"]
+  },
+  {
     "id": "gas_inhalation_emergency",
     "category": "firstaid",
     "canonical": "가스 흡입 중독 응급조치",
-    "aliases": ["가스 중독", "가스를 마셨", "가스 흡입", "유해가스 흡입", "연기 흡입", "가스 누출"],
+    "aliases": ["가스 중독", "가스를 마셨", "가스를 마셔", "가스 마시고", "가스 흡입", "유해가스 흡입", "연기 흡입", "가스 냄새를 맡고", "가스 냄새 맡고", "가스 때문에 어지러", "가스 누출"],
     "related": ["질식", "신선한 공기", "호흡용 보호구", "공기호흡기"]
   },
   {
