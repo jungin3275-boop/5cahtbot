@@ -36,11 +36,25 @@
     "related": ["지혈", "절단 부위", "119"]
   },
   {
+    "id": "head_injury_emergency",
+    "category": "firstaid",
+    "canonical": "머리 부상 응급조치",
+    "aliases": ["머리를 다쳤", "머리를 부딪", "머리를 찧", "머리 부상", "머리 충돌", "두부 손상"],
+    "related": ["목뼈 손상", "머리와 목 고정"]
+  },
+  {
+    "id": "gas_inhalation_emergency",
+    "category": "firstaid",
+    "canonical": "가스 흡입 중독 응급조치",
+    "aliases": ["가스 중독", "가스를 마셨", "가스 흡입", "유해가스 흡입", "연기 흡입", "가스 누출"],
+    "related": ["질식", "신선한 공기", "호흡용 보호구", "공기호흡기"]
+  },
+  {
     "id": "chemical_ingestion_emergency",
     "category": "firstaid",
     "canonical": "화학물질 섭취 사고",
     "aliases": ["화학물질을 마셨", "화학물질을 삼켰", "세제를 마셨", "세제를 삼켰", "소독제를 마셨"],
-    "related": ["중독", "119", "제품 용기", "MSDS"]
+    "related": ["제품 용기"]
   },
   {
     "id": "fire_emergency",
@@ -173,3 +187,4 @@
     "related": ["안전모", "안전화", "보안경", "방진마스크", "안전대"]
   }
 ]
+
