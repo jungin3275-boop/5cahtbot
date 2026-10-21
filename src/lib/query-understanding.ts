@@ -85,7 +85,7 @@ function detectIntents(question: string, conceptIds: Set<string>): QueryIntent[]
   const add = (intent: QueryIntent, matched: boolean) => {
     if (matched && !intents.includes(intent)) intents.push(intent);
   };
-  add("emergency", ["collapse_emergency", "electric_shock_emergency", "cut_entrapment_emergency", "head_injury_emergency", "gas_inhalation_emergency", "chemical_ingestion_emergency", "fire_emergency"].some((id) => conceptIds.has(id)) || /(?:쓰러|실신|의식(?:이)?없|의식을잃|호흡없|심정지|감전|끼였|끼었|베였|절단|머리를다쳤|머리부상|가스중독|가스흡입|불이났|화재|응급|119|aed|심폐소생)/u.test(question));
+  add("emergency", ["collapse_emergency", "electric_shock_emergency", "cut_entrapment_emergency", "head_injury_emergency", "fracture_emergency", "major_bleeding_emergency", "gas_inhalation_emergency", "chemical_ingestion_emergency", "fire_emergency"].some((id) => conceptIds.has(id)) || /(?:쓰러|실신|의식(?:이)?없|의식을잃|호흡없|심정지|감전|끼였|끼었|베였|절단|머리를다쳤|머리부상|골절|부러|피가많이나|출혈이심|가스중독|가스흡입|가스를마셔|불이났|화재|응급|119|aed|심폐소생)/u.test(question));
   add("application", /(?:신청|접수|제출|서류|보상|요양급여)/u.test(question));
   add("retention", /(?:보관|보존|기록.*몇년|얼마나.*보관|얼마나.*보존)/u.test(question));
   add("frequency", /(?:얼마나자주|몇년에한번|몇년마다|몇개월마다|몇회|몇번|몇차례|주기|매년|반기|분기)/u.test(question));
