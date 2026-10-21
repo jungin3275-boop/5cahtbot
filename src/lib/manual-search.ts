@@ -244,8 +244,11 @@ const QUESTION_ROUTES: QuestionRoute[] = [
     "3일 이상 휴업이 필요한 산업재해는 사고발생일부터 1개월 이내에 산업재해조사표를 관할 지방고용노동지청에 제출합니다.",
     ["중대재해는 작업중지·대피 등 필요한 조치를 하고 교육감과 관할 지방노동관서의 장에게 지체 없이 보고합니다.", "최초 발견자는 관리감독자에게 즉시 알리고 관리감독자는 응급구호 조치를 합니다."]),
   directRoute(/산업안전보건위원회.*구성.*(?:얼마나자주|개최|회의)|산업안전보건위원회.*(?:어떻게구성).*(?:자주|개최)/u, "organization", ["산업안전보건위원회의 목적과 구성", "정기·임시회의와 의결 정족수"],
-    "서울특별시교육청 산업안전보건위원회는 근로자위원 10명과 사용자위원 10명으로 구성합니다.",
-    ["정기회의는 분기별로 개최하고 위원장이 필요하다고 인정할 때 임시회의를 개최합니다.", "회의는 근로자위원과 사용자위원 각각 과반수가 출석해야 하며 출석위원 과반수의 찬성으로 의결합니다."]),
+    "서울특별시교육청 산업안전보건위원회는 근로자위원 10명과 사용자위원 10명으로 구성합니다. 정기회의는 분기별로 개최합니다.",
+    ["위원장이 필요하다고 인정할 때 임시회의를 개최합니다.", "회의는 근로자위원과 사용자위원 각각 과반수가 출석해야 하며 출석위원 과반수의 찬성으로 의결합니다."]),
+  directRoute(/(?:조리실|급식실).*(?:급기장치|급기).*(?:필터).*(?:관리|개선|사례)?/u, "ventilation", ["조리실 급기장치와 필터 관리"],
+    "창문을 통한 자연급기가 부족하면 급기구와 배기구를 공기 순환이 잘되는 위치에 설치합니다.",
+    ["외부 미세먼지가 그대로 들어오지 않도록 급기라인에 필터를 설치하고 주기적으로 교체합니다.", "기존 덕트에 필터를 추가할 때에는 풍속·풍량과 덕트 내 정압을 검토합니다."]),
   directRoute(/급식실.*(?:환기|조리흄).*(?:개선.*사례|사례)/u, "ventilation", ["조리실 급기장치와 필터 관리", "송풍기 안전관리", "급식실 무료 작업환경·관리 컨설팅"],
     "급식실 환기 개선 사례로 자연급기가 부족한 조리실에 급기구·배기구와 급기 필터를 설치하고 주기적으로 관리하는 방법이 제시되어 있습니다.",
     ["송풍기와 덕트 사이의 파손된 캔버스를 보수해 조리실 환기량 누출을 막습니다.", "근로자건강센터 컨설팅으로 후드 풍속과 공기질을 측정하고 개선방법을 안내받을 수 있습니다."]),
@@ -256,14 +259,17 @@ const QUESTION_ROUTES: QuestionRoute[] = [
     "안전보건교육 미이수자가 있으면 교육 대상을 확인해 필요한 법정 교육시간을 이수하도록 별도 일정을 편성하고 이수 결과를 기록합니다.",
     ["정기 안전보건교육은 사업주가 실시해야 하는 법정 필수교육입니다.", "교육 미실시에는 대상과 위반 횟수에 따른 과태료 기준이 적용될 수 있습니다.", "여러 차례 참여를 안내했는데도 근로자가 교육을 거부한 경우에는 그 안내와 거부 사실을 기록합니다."]),
   directRoute(/채용시교육.*정기교육.*(?:같이|시간|알려)|(?:채용.*교육시간).*(?:정기교육시간)/u, "education", ["계약 형태별 채용 시 교육시간", "현업업무종사자·관리감독자 정기교육 시간"],
-    "채용 시 교육은 일용근로자와 계약기간 1주일 이하 기간제근로자는 1시간 이상, 1주일 초과 1개월 이하는 4시간 이상, 그 밖의 근로자는 8시간 이상 실시합니다.",
-    ["현업업무종사자 정기교육은 매 반기 12시간 이상 실시합니다.", "관리감독자 정기교육은 연간 16시간 이상 실시합니다."]),
+    "채용 시 교육은 일용근로자와 계약기간 1주일 이하 기간제근로자는 1시간 이상, 1주일 초과 1개월 이하는 4시간 이상, 그 밖의 근로자는 8시간 이상 실시합니다. 현업업무종사자 정기교육은 매 반기 12시간 이상 실시합니다.",
+    ["관리감독자 정기교육은 연간 16시간 이상 실시합니다."]),
   directRoute(/산재.*(?:공상|개인보험)|(?:공상|개인보험).*산재/u, "accident", ["산업안전보건법 과제 6. 산업재해 재발방지 대책 수립", "산재보험 요양급여 신청 절차", "붙임4. 산업재해 Q2"],
     "사업주는 산업재해를 은폐해서는 안 되며, 보고 대상 재해는 공상이나 개인보험 처리와 별개로 산업재해 보고 절차를 따라야 합니다.",
     ["3일 이상 휴업이 필요한 부상·질병은 산업재해조사표 보고 대상입니다.", "업무상 재해로 4일 이상 요양이 필요하면 근로복지공단에 요양급여를 신청할 수 있습니다.", "구체적인 산재 해당 여부는 근로복지공단의 판단을 받아야 합니다."]),
   directRoute(/(?:넘어져서|다쳐서|부상).*산재처리|산재처리.*(?:되나요|가능)/u, "accident", ["산재보험 요양급여 신청 절차", "산업재해 보상 신청", "붙임4. 산업재해 Q2"],
-    "업무상의 사유로 다쳐 4일 이상 요양이 필요하면 근로복지공단에 요양급여를 신청할 수 있습니다.",
+    "업무 중 넘어져 다쳤고 4일 이상 요양이 필요하면 근로복지공단에 요양급여를 신청할 수 있습니다.",
     ["사고가 업무와 관련됐는지와 구체적인 산재 인정 여부는 근로복지공단이 판단합니다.", "3일 이상 휴업이 필요한 부상은 산업재해조사표 보고 대상도 함께 확인합니다."]),
+  directRoute(/작업환경측정.*(?:결과)?.*(?:몇년|보존|보관)|(?:몇년|보존|보관).*작업환경측정/u, "environment", ["제7장 보칙 · 제33조(기록물의 보존)"],
+    "작업환경측정 결과는 5년간 보존합니다.",
+    ["전산 입력 자료가 있으면 규정에 따라 종이 서류를 대신해 보존할 수 있습니다."]),
   directRoute(/msds.*(?:뭐|무엇|뜻|정의)/u, "msds", ["물질안전보건자료 게시·비치·교육", "물질안전보건자료 관리"],
     "물질안전보건자료(MSDS)는 사용하는 화학제품의 유해·위험 정보와 안전한 취급·예방조치를 확인하는 자료입니다.",
     ["제품 공급처나 제조회사에서 MSDS를 확보합니다.", "근로자가 쉽게 볼 수 있는 장소에 게시·비치하고 용기 경고표지와 작업공정별 관리요령을 마련합니다.", "해당 화학물질을 취급하는 근로자에게 내용을 교육합니다."]),
@@ -1197,13 +1203,20 @@ function guideFromRoute(
     const best = ranked[0];
     return best && best.score >= Math.min(2, Math.max(1, terms.length)) ? best.evidenceId : undefined;
   };
-  const messageEvidenceId = evidenceIdFor(guide.message);
-  if (!messageEvidenceId) return undefined;
+  const messageStatements = guide.message
+    .split(/(?<=[.!?])\s+/u)
+    .map((statement) => statement.trim())
+    .filter(Boolean);
+  const citedMessages = messageStatements.flatMap((statement) => {
+    const evidenceId = evidenceIdFor(statement);
+    return evidenceId ? [citedStatement(statement, evidenceId)] : [];
+  });
+  if (!messageStatements.length || citedMessages.length !== messageStatements.length) return undefined;
   const keyPoints = guide.keyPoints.flatMap((text) => {
     const evidenceId = evidenceIdFor(text);
     return evidenceId ? [{ text, evidenceIds: [evidenceId] }] : [];
   });
-  return { message: citedStatement(guide.message, messageEvidenceId), keyPoints };
+  return { message: citedMessages.join(" "), keyPoints };
 }
 
 function guideFromEvidence(pages: Array<{ text: string; isOcr: boolean }>, terms: string[], focusTerms: string[] = []): { message: string; keyPoints: GroundedPoint[] } | undefined {
@@ -1213,7 +1226,7 @@ function guideFromEvidence(pages: Array<{ text: string; isOcr: boolean }>, terms
     if (answerAt >= 0) text = text.slice(answerAt + "답변:".length);
     return text
       .split(/\n{2,}|(?<=[.!?])\s+|(?=[○◦▪■□])/u)
-      .map((statement) => statement.replace(/^[○◦▪■□·\-]+\s*/u, "").replace(/\s+/g, " ").trim())
+      .map((statement) => statement.replace(/^[○◦▪■□·\-]+\s*/u, "").replace(/\s+/g, " ").replace(/\s+\d+\s*$/u, "").trim())
       .filter((statement) => statement.length >= 8)
       .filter((statement) => !/[?？]$/u.test(statement) && !/^Q\d+[.)]/iu.test(statement))
       .filter((statement) => !/[⇨→]{1,}/u.test(statement))
@@ -1281,9 +1294,9 @@ export function searchManual(question: string, previousContext?: ConversationCon
         ["근로계약기간이 1주일 이하인 기간제근로자도 1시간 이상 교육합니다.", "1주일 초과 1개월 이하인 기간제근로자는 4시간 이상, 1개월 초과 기간제근로자와 그 밖의 근로자는 8시간 이상 교육합니다."]);
     }
     if (previousCategory === "education" && analysis.intents.includes("retention")) {
-      return directRoute(/(?:)/u, "education", ["안전보건교육 기록 보존", "제33조(서류의 보존)"],
-        "안전보건교육 실시 기록은 3년간 보존합니다.",
-        ["교육 일시·대상·내용·시간과 참석 여부를 확인할 수 있도록 기록합니다."]);
+      return directRoute(/(?:)/u, "education", ["제7장 보칙 · 제33조(기록물의 보존)", "Q10. 정기교육 이수에 따른 수료증은 언제까지 보존하고 있어야 하는지?"],
+        "교육실시 관련 서류와 위탁교육 이수증은 3년간 보존합니다.",
+        ["관리감독자 정기교육 이수자료는 교육일로부터 5년간 보존하는 것이 바람직합니다.", "교육 일시·대상·내용·시간과 참석 여부를 확인할 수 있도록 기록합니다."]);
     }
     if (previousCategory === "risk" && analysis.intents.includes("retention")) {
       return directRoute(/(?:)/u, "risk", ["근로자 참여 위험성평가", "위험성평가 절차", "제23조(위험성평가의 실시)"],
@@ -1299,6 +1312,13 @@ export function searchManual(question: string, previousContext?: ConversationCon
       return directRoute(/(?:)/u, "health", ["일반·특수·배치 전 건강진단", "일반건강진단"],
         "조리·급식 종사자와 같은 비사무직 근로자는 일반건강진단을 1년에 1회 실시합니다.",
         ["폐암 건강검진 지원은 일반건강진단과 별도의 지원사업이므로 대상 기준과 신청 안내를 따로 확인합니다."]);
+    }
+    const previousEvidenceText = previousContext.evidenceSections.join(" ").replaceAll(" ", "");
+    if (previousCategory === "health" && /(?:비용|얼마)/u.test(normalizedQuestion)
+      && /폐암/u.test(`${normalizedPreviousQuestion}${previousEvidenceText}`)) {
+      return directRoute(/(?:)/u, "health", ["폐암 1차·2차 검진 비용 지원"],
+        "급식종사자 폐암 1차 검진인 저선량 흉부 CT 비용은 협약 병원 기준으로 전액 지원합니다.",
+        ["1차 검진에서 폐암 의심 이상의 소견이 나온 희망자는 2차 정밀검진을 받을 수 있습니다.", "2차 검진은 보험 청구 후 본인부담금을 150만원 한도에서 지원합니다."]);
     }
     if (previousCategory === "health" && /(?:비용|얼마)/u.test(normalizedQuestion)) {
       return unavailableRoute(/(?:)/u, "등록된 근거자료에는 질문한 건강진단의 비용 부담 기준이 직접 제시되어 있지 않습니다. 학교 또는 교육청 산업안전보건 담당 부서에 검진 종류와 대상자를 알려 확인해 주세요.");
