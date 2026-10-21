@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { searchManual, type ConversationContext, type SearchResponse } from "@/lib/manual-search";
+import { searchManual, type ConversationContext, type SearchResponse } from "@/features/chatbot/lib/manual-search";
 
 type OpenAIResponse = {
   output_text?: string;

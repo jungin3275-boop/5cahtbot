@@ -21,7 +21,7 @@ OPENAI_MODEL=gpt-6-astra
 npm run dev
 ```
 
-브라우저에서 `http://localhost:3000`을 엽니다. 배포 전에는 아래 명령으로 확인합니다.
+브라우저에서 `http://localhost:3000/chatbot`을 엽니다. 루트 주소 `/`도 현재는 `/chatbot`으로 이동합니다. 배포 전에는 아래 명령으로 확인합니다.
 
 ```bash
 npm run typecheck
@@ -71,28 +71,12 @@ AI는 검색된 근거자료만 전달받아 답변하도록 지시됩니다. AP
 
 ## 구성
 
-- `src/app/api/ask/route.ts`: 질문 검증, 근거 검색, OpenAI Responses API 호출
-- `src/lib/manual-search.ts`: 업무 분야 판별, 페이지 순위, 발췌문 생성
-- `src/data/manual-pages.json`: 산업안전보건업무 매뉴얼의 원문 대조 의미 단위 청크 17개
-- `src/data/hazard-prevention-pages.json`: 위험요인·재해예방 연수자료의 원문 대조 의미 단위 청크 20개
-- `src/data/supervisor-training-qna.json`: 관리감독자 정기교육 질의응답 11개 청크
-- `src/data/safety-health-regulation.json`: 안전보건관리규정 35개 조문과 부칙 청크
-- `src/data/education-ministry-guidance.json`: 교육부 산업재해 예방 안내 64개 의미 단위 청크
-- `src/data/supervisor-training-2026.json`: 2026년 관리감독자 신규 원격과정 안내 3개 청크
-- `src/data/new-employee-training.json`: 신규 채용 현업업무종사자 안전보건교육 안내 7개 청크
-- `src/data/inspection-best-practices.json`: 중복을 제외한 순회점검 개선사례 12개 청크
-- `src/data/worker-health-support.json`: 건강관리 지원 웹페이지 8개 청크
-- `src/data/safety-siren-2026.json`: 2026년 안전싸이렌 선별 자료 12개 청크
-- `src/data/regular-worker-training-current.json`: 현업업무종사자 정기교육 최신 안내 3개 청크
-- `src/data/worker-training-big-text-2026.json`: 직무스트레스·괴롭힘·뇌심혈관·근골격계 예방 8개 청크
-- `src/data/school-worker-chemical-safety.json`: 학교 근로자 화학물질 안전 3개 청크
-- `src/data/school-worker-general-safety.json`: 학교 근로자 야간순찰·분리수거 안전 2개 청크
-- `src/data/safety-health-committee-current.json`: 산업안전보건위원회 구성·운영·심의 사항 3개 청크
-- `src/data/contractor-council-guidance.json`: 안전보건 도급 협의체 지원 도움자료 4개 청크
-- `src/data/serious-accident-response-manual.json`: 중대산업재해 작업중지·사고대응·현장보존과 응급처치 9개 청크
-- `src/data/facility-hazardous-work-rules.json`: 시설관리 위험작업별 안전수칙 7개 청크
-- `src/data/serious-accident-prevention-guide.json`: 일반건강진단 인정 범위와 근로자 의무 1개 청크
-- `src/data/high-risk-factor-response-guide-part1.json`: 기존 자료와 겹치지 않는 고위험 작업별 안전수칙 13개 청크
+- `src/app/chatbot/page.tsx`: 통합 사이트에서 사용하는 챗봇 화면 경로
+- `src/app/api/chatbot/ask/route.ts`: 질문 검증, 근거 검색, OpenAI Responses API 호출
+- `src/features/chatbot/components/chat-workspace.tsx`: 검색 화면과 근거 카드
+- `src/features/chatbot/lib/manual-search.ts`: 업무 분야 판별, 페이지 순위, 발췌문 생성
+- `src/features/chatbot/lib/query-understanding.ts`: 동의어·의도·후속 질문 분석
+- `src/features/chatbot/data/`: 챗봇이 검색하는 25종 근거자료의 의미 단위 청크
 - `scripts/build-manual-index.py`: 원문 대조를 거친 매뉴얼 의미 청크 색인 생성
 - `scripts/build-hazard-index.py`: 원문 대조를 거친 위험요인 자료 의미 청크 색인 생성
 - `scripts/curated_source_chunks.py`: 이미지 전용 PDF 두 건의 교정된 의미 청크
@@ -104,9 +88,10 @@ AI는 검색된 근거자료만 전달받아 답변하도록 지시됩니다. AP
 - `scripts/build-bogun-site-sources.py`: 보건안전진흥원 자료를 검수된 의미 단위 색인 35개로 생성
 - `scripts/build-contractor-council-index.py`: 도급 협의체 HWP를 검수된 의미 단위 색인 4개로 생성
 - `scripts/build-added-safety-guides.py`: 선별한 PDF·HWP 일곱 자료를 중복 제거한 의미 단위 색인 43개로 생성
-- `src/components/chat-workspace.tsx`: 검색 화면과 근거 카드
 
 ## 다른 기능과 합치기
+
+챗봇 화면은 `/chatbot`, API는 `/api/chatbot/ask`를 사용합니다. 통합 저장소의 다른 기능은 `/risk-assessment`, `/msds`, `/forms`, `/contractor`처럼 별도 경로를 사용합니다.
 
 `.env.example`을 `.env.local`로 복사하고 준비된 기능의 URL을 입력합니다. 지원 값은 `NEXT_PUBLIC_RISK_ASSESSMENT_URL`, `NEXT_PUBLIC_MSDS_URL`, `NEXT_PUBLIC_FORMS_URL`, `NEXT_PUBLIC_CONTRACTOR_URL`입니다. 관련 검색 결과에 설정된 URL만 후속 기능 버튼으로 표시됩니다.
 

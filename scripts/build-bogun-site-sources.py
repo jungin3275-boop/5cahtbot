@@ -12,7 +12,7 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-DATA_DIR = ROOT / "src" / "data"
+DATA_DIR = ROOT / "src" / "features" / "chatbot" / "data"
 PUBLISHER = "서울특별시교육청보건안전진흥원 산업안전보건지원과"
 BOARD_URL = "https://bogun.sen.go.kr/fus/MI000000000000000599/board/BO00000146/ctgynone/list0010v.do"
 

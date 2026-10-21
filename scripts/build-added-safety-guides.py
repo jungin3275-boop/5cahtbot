@@ -3,7 +3,7 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-DATA_DIR = ROOT / "src" / "data"
+DATA_DIR = ROOT / "src" / "features" / "chatbot" / "data"
 
 
 def chunk(page, label, category, terms, section, text):

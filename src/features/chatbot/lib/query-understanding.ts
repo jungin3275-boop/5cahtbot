@@ -1,4 +1,4 @@
-import rawConcepts from "@/data/search-concepts.json";
+import rawConcepts from "@/features/chatbot/data/search-concepts.json";
 
 type ConceptDefinition = {
   id: string;

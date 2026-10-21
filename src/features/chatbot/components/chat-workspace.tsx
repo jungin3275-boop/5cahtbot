@@ -23,12 +23,12 @@ import {
   X,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import type { SearchResponse } from "@/lib/manual-search";
+import type { SearchResponse } from "@/features/chatbot/lib/manual-search";
 import {
   getIntegrationUrl,
   integrationLabels,
   quickTopics,
-} from "@/lib/demo-data";
+} from "@/features/chatbot/lib/demo-data";
 
 type AnswerMessage = {
   id: number;
@@ -83,7 +83,7 @@ export function ChatWorkspace({ aiEnabled }: { aiEnabled: boolean }) {
     const controller = new AbortController();
     requestRef.current = controller;
     try {
-      const response = await fetch("/api/ask", {
+      const response = await fetch("/api/chatbot/ask", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ question, previousContext: previousContextRef.current }),

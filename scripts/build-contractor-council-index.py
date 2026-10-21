@@ -7,7 +7,7 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-OUTPUT = ROOT / "src" / "data" / "contractor-council-guidance.json"
+OUTPUT = ROOT / "src" / "features" / "chatbot" / "data" / "contractor-council-guidance.json"
 
 
 PAGES = [
